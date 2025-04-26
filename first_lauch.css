@@ -1,0 +1,15 @@
+body{
+    align-items: center;
+    display: flex  ;
+    flex-direction: column;
+}
+form{
+    flex-direction: row;
+    display: flex;
+    margin: 10px;
+}
+
+#radio {
+margin: 20px;
+font-size: 20px;
+}
