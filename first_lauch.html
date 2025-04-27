@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <title>Arène des légendes</title>
     <link rel="stylesheet" href="first_lauch.css">
+    <script src="first_lauch.js"></script>
 </head>
 <body>
     <h1>Bonjour dans l'arène des légendes</h1>
     <h3>Veuillez choissir le nombre de joueurs</h3>
-    <form action="">
+    <form onchange="nbrSelected()">
         <div id="radio">
             <input type="radio" id="1" value="1" name="nbr">
             <label for="1">1</label>
@@ -29,5 +30,21 @@
         </div>
 
     </form>
+    <div id="fighter">
+        
+        <p id="selected_nbr"></p>
+        <form action="">
+            <label for="fighter" id="choix">Choix</label>
+            <select name="fighter" id="select_fighter">
+                <option value="Chevalier">Chevalier</option>
+                <option value="Ninja">Ninja</option>
+                <option value="Sorcier">Sorcier</option>
+            </select>
+        </form>
+    </div>
+
+    <button id="start">
+        Commencez
+    </button>
 </body>
 </html>

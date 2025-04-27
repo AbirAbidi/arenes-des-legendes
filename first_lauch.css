@@ -13,3 +13,21 @@ form{
 margin: 20px;
 font-size: 20px;
 }
+
+#choix{
+    margin-right: 20px;
+}
+
+#fighter{
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+}
+#start{
+    margin: 20px;
+    background-color: #0F9D58;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 10px;
+}
