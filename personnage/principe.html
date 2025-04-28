@@ -7,18 +7,20 @@
 </head>
 <body>
 
-  <h1>Choisis ton héros</h1>
-
-  <div class="personnage">
-    <!-- Utilisation d'un chemin relatif pour les images -->
-    <img id="samurai" src="C:\Users\Mega Pc\arenes-des-legendes\personnage\idl\Idle.png" alt="Samurai">
-
-    <h2>Samurai</h2>
-    <p>Résistant et puissant en mêlée.</p>
-    <!-- Bouton pour sélectionner le personnage -->
-    <button id="selectButton">Sélectionner</button>
+  <div class="container">
+    <button id="prev">&#8592;</button> <!-- Flèche gauche -->
+    
+    <div class="card">
+      <img id="character-image" src="" alt="Personnage">
+      <h2 id="character-name"></h2>
+      <p id="character-description"></p>
+      <button id="select-btn" class="select-button">Sélectionner</button>
+    </div>
+    
+    <button id="next">&#8594;</button> <!-- Flèche droite -->
   </div>
-  
+
+
   <script src="js.js"></script>
 </body>
 </html>
