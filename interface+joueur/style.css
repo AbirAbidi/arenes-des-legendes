@@ -1,0 +1,132 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #eae7dc;
+    font-family: Arial, sans-serif;
+    overflow: hidden; /* Empêche les barres de défilement */
+  }
+  
+  .arene {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    width: 560px; /* 7 x 80px */
+    height: 560px;
+    border: 3px solid #8e8d8a;
+    background-color: #d8c3a5;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  }
+  
+  .case {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(145deg, #fdfdfd, #d6d6d6);
+    box-shadow: inset 0 0 2px #aaa;
+    position: relative;
+    transition: transform 0.2s;
+    cursor: pointer;
+    font-size: 22px;
+    font-weight: bold;
+    box-sizing: border-box; /* Pour que les bordures ne changent pas la taille */
+  }
+  
+  .case:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+  }
+  
+  /* Case de départ avec un style distinctif */
+  .case.depart {
+    background: linear-gradient(145deg, #a5d6a7, #81c784);
+    color: #2e7d32;
+    font-weight: bold;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px; /* Bordure arrondie pour distinguer */
+    box-shadow: 0 0 10px rgba(0, 128, 0, 0.5);
+    cursor: pointer;
+    font-size: 16px;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+  }
+  
+  .case.depart:hover {
+    transform: scale(1.1);
+    background: linear-gradient(145deg, #81c784, #66bb6a);
+  }
+  
+  .element {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 26px;
+  }
+  
+  .element.bonus::after {
+    content: "★";
+    color: green;
+    font-size: 36px;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+  }
+  
+  .element.piege::after {
+    content: "☠";
+    color: red;
+    font-size: 36px;
+    text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+  }
+  
+  .element.obstacle::after {
+    content: "⬛";
+    color: #444;
+    font-size: 36px;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+  }
+  
+  /* Personnalisation du joueur */
+  .joueur {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    pointer-events: none; /* Le joueur ne doit pas interférer avec les clics */
+    transition: all 0.2s ease;
+    z-index: 20; /* S'assurer que le joueur est toujours au-dessus */
+  }
+  
+  /* Animation de saut */
+  @keyframes jump {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+    100% { transform: translateY(0); }
+  }
+  
+  .case.surprise {
+    animation: flashSurprise 0.5s ease-in-out;
+  }
+  
+  @keyframes flashSurprise {
+    0%   { background-color: #fff176; }
+    50%  { background-color: #ff8a65; transform: scale(1.1); }
+    100% { background-color: #d6d6d6; transform: scale(1); }
+  }
+  
+  /* Style pour les instructions */
+  h3 {
+    margin-top: 0;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+  }
