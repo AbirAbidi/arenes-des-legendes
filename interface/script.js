@@ -1,53 +1,87 @@
 const arene = document.getElementById('arene');
+const TAILLE = 7;
+const TOTAL_CASES = TAILLE * TAILLE;
 
-function creerCaseTexturee() {
-  const texturedCase = document.createElement('div');
-  texturedCase.classList.add('case-texturee');
+const NB_OBSTACLES = 4;
+const NB_BONUS = 4;
+const NB_PIEGES = 4;
+const NB_SURPRISES = 5;
 
-  for (let i = 0; i < 16; i++) {
-    const pixel = document.createElement('div');
-    pixel.classList.add('mini-pixel');
+const positionsUtilisées = new Set();
 
-    const isCorner = (i === 0 || i === 3 || i === 12 || i === 15);
-
-    if (isCorner && Math.random() < 0.6) {
-      // Coin vert doux
-      pixel.style.backgroundColor = `rgb(${150 + Math.floor(Math.random() * 20)}, ${180 + Math.floor(Math.random() * 40)}, ${150 + Math.floor(Math.random() * 20)})`;
-    } else if (Math.random() < 0.25) {
-      // Ombres / pierres
-      const d = 160 + Math.floor(Math.random() * 20);
-      pixel.style.backgroundColor = `rgb(${d}, ${d - 10}, ${d - 20})`;
-    } else {
-      // Base marron clair
-      const b = 200 + Math.floor(Math.random() * 20);
-      pixel.style.backgroundColor = `rgb(${b}, ${b - 15}, ${b - 30})`;
-    }
-
-    texturedCase.appendChild(pixel);
-  }
-
-  return texturedCase;
+function positionAleatoire() {
+  let pos;
+  do {
+    pos = Math.floor(Math.random() * TOTAL_CASES);
+  } while (positionsUtilisées.has(pos));
+  positionsUtilisées.add(pos);
+  return pos;
 }
 
-// Générer la grille
-for (let i = 0; i < 49; i++) {
-  const chance = Math.random();
+const cases = [];
 
-  if (chance < 0.4) {
-    arene.appendChild(creerCaseTexturee());
-  } else {
-    const simpleCase = document.createElement('div');
-    simpleCase.classList.add('case');
+// Création des cases
+for (let i = 0; i < TOTAL_CASES; i++) {
+  const caseDiv = document.createElement('div');
+  caseDiv.classList.add('case');
 
-    // Couleur de fond simple
-    if (chance < 0.6) {
-      simpleCase.style.backgroundColor = "#c9d8c5"; // Vert pâle
-    } else if (chance < 0.8) {
-      simpleCase.style.backgroundColor = "#e7d9c4"; // Beige sable
+  const decor = document.createElement('div');
+  decor.classList.add('decor');
+
+  const element = document.createElement('div');
+  element.classList.add('element');
+
+  caseDiv.appendChild(decor);
+  caseDiv.appendChild(element);
+  arene.appendChild(caseDiv);
+
+  cases.push({ div: caseDiv, element });
+
+  // ✅ Gestion de l'effet surprise AU BON ENDROIT
+  caseDiv.addEventListener('click', () => {
+    caseDiv.classList.add('surprise');
+    setTimeout(() => caseDiv.classList.remove('surprise'), 500);
+
+    const elem = cases[i].element;
+    if (elem.classList.contains('bonus')) {
+      alert("🎁 Vous avez découvert un BONUS !");
+    } else if (elem.classList.contains('piege')) {
+      alert("💥 Oh non, un PIÈGE !");
+    } else if (elem.classList.contains('obstacle')) {
+      alert("⛔ C'est un OBSTACLE !");
+    } else if (elem.dataset.surprise === 'bonus') {
+      alert("🎁 Surprise ! C'était un BONUS caché !");
+    } else if (elem.dataset.surprise === 'piege') {
+      alert("💥 Surprise ! C'était un PIÈGE caché !");
     } else {
-      simpleCase.style.backgroundColor = "#b0a490"; // Taupe
+      alert("🔍 Rien de spécial ici...");
     }
+  });
+}
 
-    arene.appendChild(simpleCase);
-  }
+// Obstacle visibles
+for (let i = 0; i < NB_OBSTACLES; i++) {
+  const index = positionAleatoire();
+  cases[index].element.classList.add('obstacle');
+}
+
+// Bonus visibles
+for (let i = 0; i < NB_BONUS; i++) {
+  const index = positionAleatoire();
+  cases[index].element.classList.add('bonus');
+}
+
+// Pièges visibles
+for (let i = 0; i < NB_PIEGES; i++) {
+  const index = positionAleatoire();
+  cases[index].element.classList.add('piege');
+}
+
+// 🎁 Surprise cachée (aucune classe visible, juste data)
+for (let i = 0; i < NB_SURPRISES; i++) {
+  const index = positionAleatoire();
+  const type = Math.random() < 0.5 ? 'bonus' : 'piege';
+  cases[index].element.dataset.surprise = type;
+// Pour debug uniquement : 
+  cases[index].element.innerText = "?";
 }
