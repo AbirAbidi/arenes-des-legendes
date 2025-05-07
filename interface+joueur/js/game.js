@@ -533,73 +533,201 @@ document.addEventListener('DOMContentLoaded', function() {
     // Utilisez cases[position].type pour déterminer l'action à effectuer
   }
   
-  // Attachement des événements
+  // affichage du lace de de
+  let elementDe; // Rend le dé accessible globalement
+
+function afficherDe() {
+  elementDe = document.createElement('div');
+  elementDe.style.width = '100px';
+  elementDe.style.height = '100px';
+  elementDe.style.display = 'flex';
+  elementDe.style.alignItems = 'center';
+  elementDe.style.justifyContent = 'center';
+  elementDe.style.backgroundColor = '#fff';
+  elementDe.style.border = '2px solid #333';
+  elementDe.style.borderRadius = '8px';
+  elementDe.style.fontSize = '36px';
+  elementDe.style.fontWeight = 'bold';
+  elementDe.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+  elementDe.style.position = 'absolute';
+  elementDe.style.top = '20px';
+  elementDe.style.left = '20px';
+  elementDe.style.cursor = 'pointer';
+  elementDe.textContent = '?'; // Affichage initial
+
+  document.body.appendChild(elementDe);
+}
+
+afficherDe();
   // 1. Événement pour la case départ joueur 1
-  caseDepartJ1.addEventListener('click', function(e) {
-    console.log("Case départ joueur 1 cliquée!");
-    entrerDansArene();
-    e.stopPropagation();
+  let joueur1Lance = false; // Permet de savoir si le joueur 1 a lancé son dé
+  let joueur2Lance = false; // Permet de savoir si le joueur 2 a lancé son dé
+  
+  // Lancer le dé lorsque la case de départ est cliquée
+  caseDepartJ1.addEventListener('click', function() {
+    if (!joueur1Lance) {
+      // Lancer le dé pour le joueur 1
+      const scoreJoueur1 = lancerDe();
+      if (elementDe) elementDe.textContent = scoreJoueur1;
+      entrerDansArene();
+      console.log("Joueur 1 a lancé: " + scoreJoueur1);
+      joueur1Lance = true;
+      localStorage.setItem('scoreJoueur1', scoreJoueur1);
+      checkLancers(); // Vérifier après le lancer
+    }
   });
   
   // Événement pour la case départ du joueur 2
-  caseDepartJ2.addEventListener('click', function(e) {
-    console.log("Case départ joueur 2 cliquée!");
-    entrerDansAreneJ2();
-    e.stopPropagation();
+  caseDepartJ2.addEventListener('click', function() {
+    if (!joueur2Lance) {
+      // Lancer le dé pour le joueur 2
+      const scoreJoueur2 = lancerDe();
+      if (elementDe) elementDe.textContent = scoreJoueur2;
+      entrerDansAreneJ2();
+      console.log("Joueur 2 a lancé: " + scoreJoueur2);
+      joueur2Lance = true;
+      localStorage.setItem('scoreJoueur2', scoreJoueur2);
+      checkLancers(); // Vérifier après le lancer
+    }
   });
+  // Fonction pour mettre à jour l'affichage des tours
+function updateTourDisplay() {
+  const tourActuel = localStorage.getItem('tourActuel');
+  const tourDisplay = document.getElementById('tour');
+  
+  if (tourActuel == 1) {
+    tourDisplay.innerText = "C'est au tour de Joueur 1";
+  } else {
+    tourDisplay.innerText = "C'est au tour de Joueur 2";
+  }
+}
+  function lancerDe() {
+    return Math.floor(Math.random() * 6) + 1; // Retourne un nombre entre 1 et 6
+  }
+  // Fonction pour vérifier les résultats des lancers
+function checkLancers() {
+  // Vérifie si les deux joueurs ont lancé leur dé
+  if (joueur1Lance && joueur2Lance) {
+    const scoreJ1 = localStorage.getItem('scoreJoueur1');
+    const scoreJ2 = localStorage.getItem('scoreJoueur2');
+
+    if (scoreJ1 > scoreJ2) {
+      console.log("Joueur 1 commence !");
+      toursactuel = 1;
+      updateTourAffichage();  // Affiche "Tour du Joueur 1"
+    } else if (scoreJ2 > scoreJ1) {
+      console.log("Joueur 2 commence !");
+      toursactuel = 2;
+      updateTourAffichage();  // Affiche "Tour du Joueur 2"
+    } else {
+      console.log("Égalité, relance des dés !");
+      joueur1Lance = false;
+      joueur2Lance = false;
+      checkLancers(); // On recommence les lancers
+    }
+  }
+}
+
+
+
+  
+  // Création de l'élément d'affichage du tour
+const tourAffichage = document.createElement('div');
+tourAffichage.style.position = 'absolute';
+tourAffichage.style.top = '20px';  // Positionné en haut de l'écran
+tourAffichage.style.left = '50%';  // Centré horizontalement
+tourAffichage.style.transform = 'translateX(-50%)';  // Centrage complet
+tourAffichage.style.fontSize = '20px';
+tourAffichage.style.fontWeight = 'bold';
+tourAffichage.style.padding = '10px';
+tourAffichage.style.backgroundColor = '#f1f1f1';
+tourAffichage.style.border = '1px solid #ddd';
+tourAffichage.style.borderRadius = '5px';
+tourAffichage.style.textAlign = 'center';
+tourAffichage.style.zIndex = '100';
+document.body.appendChild(tourAffichage);
+
+
+// Fonction pour mettre à jour le texte du tour
+function updateTourAffichage() {
+  tourAffichage.textContent = `Tour du Joueur ${toursactuel}`;
+}
+
   
   // 2. Événements clavier
-  document.addEventListener('keydown', function(event) {
-    console.log("Touche pressée:", event.key);
-    
-    // Contrôles pour le joueur 1
-    if (joueurPosition !== null && !isMoving && !isJumping) {
-      if (event.key === ' ' || event.key === 'Spacebar') {
-        const direction = localStorage.getItem('derniere_direction') || 'droite';
-        sauterJoueur(direction);
-      }
-      else if (event.key === 'ArrowUp' && joueurPosition >= TAILLE) {
-        localStorage.setItem('derniere_direction', 'haut');
-        deplacerJoueur(joueurPosition - TAILLE);
-      }
-      else if (event.key === 'ArrowDown' && joueurPosition < TOTAL_CASES - TAILLE) {
-        localStorage.setItem('derniere_direction', 'bas');
-        deplacerJoueur(joueurPosition + TAILLE);
-      }
-      else if (event.key === 'ArrowLeft' && joueurPosition % TAILLE !== 0) {
-        localStorage.setItem('derniere_direction', 'gauche');
-        deplacerJoueur(joueurPosition - 1);
-      }
-      else if (event.key === 'ArrowRight' && joueurPosition % TAILLE !== TAILLE - 1) {
-        localStorage.setItem('derniere_direction', 'droite');
-        deplacerJoueur(joueurPosition + 1);
-      }
+  let toursactuel = 1; // 1 pour joueur 1, 2 pour joueur 2
+  let verrouTour = false;
+document.addEventListener('keydown', function(event) {
+  console.log("Touche pressée:", event.key);
+  if (verrouTour) return;
+  // --- Contrôles pour le joueur 1 ---
+  if (toursactuel === 1 && joueurPosition !== null && !isMoving && !isJumping) {
+    if (event.key === ' ' || event.key === 'Spacebar') {
+      const direction = localStorage.getItem('derniere_direction') || 'droite';
+      sauterJoueur(direction);
+      changerTour();
     }
-    
-    // Contrôles pour le joueur 2
-    if (joueur2Position !== null && !isMoving2 && !isJumping2) {
-      if (event.key === 'v' || event.key === 'V') {
-        const direction = localStorage.getItem('derniere_direction2') || 'gauche';
-        sauterJoueur2(direction);
-      }
-      else if ((event.key === 'z' || event.key === 'Z') && joueur2Position >= TAILLE) {
-        localStorage.setItem('derniere_direction2', 'haut');
-        deplacerJoueur2(joueur2Position - TAILLE);
-      }
-      else if ((event.key === 's' || event.key === 'S') && joueur2Position < TOTAL_CASES - TAILLE) {
-        localStorage.setItem('derniere_direction2', 'bas');
-        deplacerJoueur2(joueur2Position + TAILLE);
-      }
-      else if ((event.key === 'q' || event.key === 'Q') && joueur2Position % TAILLE !== 0) {
-        localStorage.setItem('derniere_direction2', 'gauche');
-        deplacerJoueur2(joueur2Position - 1);
-      }
-      else if ((event.key === 'd' || event.key === 'D') && joueur2Position % TAILLE !== TAILLE - 1) {
-        localStorage.setItem('derniere_direction2', 'droite');
-        deplacerJoueur2(joueur2Position + 1);
-      }
+    else if (event.key === 'ArrowUp' && joueurPosition >= TAILLE) {
+      localStorage.setItem('derniere_direction', 'haut');
+      deplacerJoueur(joueurPosition - TAILLE);
+      changerTour();
     }
-  });
+    else if (event.key === 'ArrowDown' && joueurPosition < TOTAL_CASES - TAILLE) {
+      localStorage.setItem('derniere_direction', 'bas');
+      deplacerJoueur(joueurPosition + TAILLE);
+      changerTour();
+    }
+    else if (event.key === 'ArrowLeft' && joueurPosition % TAILLE !== 0) {
+      localStorage.setItem('derniere_direction', 'gauche');
+      deplacerJoueur(joueurPosition - 1);
+      changerTour();
+    }
+    else if (event.key === 'ArrowRight' && joueurPosition % TAILLE !== TAILLE - 1) {
+      localStorage.setItem('derniere_direction', 'droite');
+      deplacerJoueur(joueurPosition + 1);
+      changerTour();
+    }
+  }
+
+  // --- Contrôles pour le joueur 2 ---
+  else if (toursactuel === 2 && joueur2Position !== null && !isMoving2 && !isJumping2) {
+    if (event.key === 'v' || event.key === 'V') {
+      const direction = localStorage.getItem('derniere_direction2') || 'gauche';
+      sauterJoueur2(direction);
+      changerTour();
+    }
+    else if ((event.key === 'z' || event.key === 'Z') && joueur2Position >= TAILLE) {
+      localStorage.setItem('derniere_direction2', 'haut');
+      deplacerJoueur2(joueur2Position - TAILLE);
+      changerTour();
+    }
+    else if ((event.key === 's' || event.key === 'S') && joueur2Position < TOTAL_CASES - TAILLE) {
+      localStorage.setItem('derniere_direction2', 'bas');
+      deplacerJoueur2(joueur2Position + TAILLE);
+      changerTour();
+    }
+    else if ((event.key === 'q' || event.key === 'Q') && joueur2Position % TAILLE !== 0) {
+      localStorage.setItem('derniere_direction2', 'gauche');
+      deplacerJoueur2(joueur2Position - 1);
+      changerTour();
+    }
+    else if ((event.key === 'd' || event.key === 'D') && joueur2Position % TAILLE !== TAILLE - 1) {
+      localStorage.setItem('derniere_direction2', 'droite');
+      deplacerJoueur2(joueur2Position + 1);
+      changerTour();
+    }
+  }
+});
+function changerTour() {
+  verrouTour = true;
+  setTimeout(() => {
+    toursactuel = (toursactuel === 1) ? 2 : 1;
+    console.log(`🎮 Tour du joueur ${toursactuel}`);
+    updateTourAffichage();
+    verrouTour = false;
+  }, 300); // Délai anti double-tour
+}
+
   
   // Ajouter un bouton d'aide pour faciliter le débogage
   const debugButton = document.createElement('button');
