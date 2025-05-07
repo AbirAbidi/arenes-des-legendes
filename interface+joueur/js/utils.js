@@ -29,3 +29,18 @@ function positionAleatoire() {
       setTimeout(() => document.body.removeChild(notification), 500);
     }, duration);
   }
+  function isCaseOccupee(position) {
+    // Vérifier si la position est valide
+    if (position < 0 || position >= TOTAL_CASES) return true;
+    
+    // Vérifier si le joueur 1 occupe cette case
+    if (joueurPosition === position) return true;
+    
+    // Vérifier si le joueur 2 occupe cette case
+    if (joueur2Position === position) return true;
+    
+    // Vérifier si la case contient un obstacle
+    if (cases[position].element.classList.contains('obstacle')) return true;
+    
+    return false;
+  }
