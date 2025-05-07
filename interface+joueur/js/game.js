@@ -10,12 +10,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Création du joueur
     joueurDiv = creerJoueur();
     
-    // Création de la case départ
-    const caseDepart = creerCaseDepart();
+// Dans game.js, lors de la création des cases de départ
+const caseDepartJ1 = creerCaseDepart(0, 'DÉPART J1', '#8bc34a', 'case-depart-j1', -100);
+const caseDepartJ2 = creerCaseDepart(TOTAL_CASES - 1, 'DÉPART J2', '#2196f3', 'case-depart-j2', 100);
+    
+    
     
     // Ajouter le joueur à la case départ
     setTimeout(() => {
-      caseDepart.appendChild(joueurDiv);
+      caseDepartJ1.appendChild(joueurDiv);
       console.log("Joueur ajouté à la case départ");
     }, 200);
   
@@ -51,15 +54,14 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       
       // S'assurer que le joueur est dans la case de départ
-      if (!caseDepart.contains(joueurDiv)) {
+      if (!caseDepartJ1.contains(joueurDiv)) {
         console.log("Replacement du joueur dans la case départ");
-        caseDepart.appendChild(joueurDiv);
+        caseDepartJ1.appendChild(joueurDiv);
       }
       
       // Animation de déplacement vers la première case
       demarrerMarche();
-      
-      const departRect = caseDepart.getBoundingClientRect();
+      const departRect = caseDepartJ1.getBoundingClientRect();
       const caseCibleRect = cases[0].div.getBoundingClientRect();
       
       // Vérifier que les positions sont valides
@@ -95,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function() {
           // Fin de l'animation
           try {
             document.body.removeChild(joueurClone);
-            caseDepart.removeChild(joueurDiv);
+            caseDepartJ1.removeChild(joueurDiv);
             cases[0].div.appendChild(joueurDiv);
             joueurDiv.style.opacity = '1';
             joueurPosition = 0;
@@ -258,7 +260,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
     // Attachement des événements
     // 1. Événement pour la case départ
-    caseDepart.addEventListener('click', function(e) {
+    caseDepartJ1.addEventListener('click', function(e) {
       console.log("Case départ cliquée!");
       entrerDansArene();
       e.stopPropagation();
@@ -326,4 +328,18 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.appendChild(debugButton);
     
     console.log("Initialisation du jeu terminée");
+    window.addEventListener('resize', function() {
+      // Recalculer la position des cases de départ
+      const caseRef1 = cases[0].div.getBoundingClientRect();
+      const caseRef2 = cases[TOTAL_CASES - 1].div.getBoundingClientRect();
+      
+      const caseDepartJ1 = document.getElementById('case-depart-j1');
+      const caseDepartJ2 = document.getElementById('case-depart-j2');
+      
+      caseDepartJ1.style.top = `${caseRef1.top}px`;
+      caseDepartJ1.style.left = `${caseRef1.left - 100}px`;
+      
+      caseDepartJ2.style.top = `${caseRef2.top}px`;
+      caseDepartJ2.style.left = `${caseRef2.left + 100}px`;
+    });
   });

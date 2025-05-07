@@ -35,9 +35,9 @@ function creerJoueur() {
 
 // Fonctions d'animation
 function animerDeplacement() {
-  if (!isMoving) return;
-  joueurDiv.style.backgroundImage = `url(${walkImages[walkIndex]})`;
-  walkIndex = (walkIndex + 1) % walkImages.length;
+  //if (!isMoving) return;
+  //joueurDiv.style.backgroundImage = `url(${walkImages[walkIndex]})`;
+  //walkIndex = (walkIndex + 1) % walkImages.length;
 }
 
 function demarrerMarche() {

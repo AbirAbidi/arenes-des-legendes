@@ -12,6 +12,8 @@ const NB_SURPRISES = 5;
 
 // Chemins d'images
 const playerIdleImage = 'idl/Idle.png';
+const player2IdleImage = 'idl/Idle2.png';
+
 const walkImages = [
   'walk/Walk0.png',
   'walk/Walk1.png',

@@ -1,7 +1,6 @@
 // arena.js
 // Création et gestion de l'arène de jeu
 
-let caseDepart; // Déclaration de la case de départ
 
 // Création des cases de l'arène
 function creerArene() {
@@ -79,33 +78,37 @@ function creerArene() {
   return arene;
 }
 
-// Création de la case de départ
-function creerCaseDepart() {
-  caseDepart = document.createElement('div');
+// Modification de la fonction creerCaseDepart pour forcer un reflow
+function creerCaseDepart(index, label, couleur, id, decalageX = -100) {
+  const caseDepart = document.createElement('div');
   caseDepart.classList.add('case', 'depart');
-  caseDepart.id = 'case-depart';
-  caseDepart.textContent = 'DÉPART';
+  caseDepart.id = id;
+  caseDepart.textContent = label;
   document.body.appendChild(caseDepart);
+
+  // Forcer un reflow avant de calculer les positions
+  document.body.offsetHeight; // Cette ligne force un reflow
   
-  // Positionnement de la case départ relative à l'arène
+  // Utiliser un délai plus long pour s'assurer que toutes les cases sont positionnées
   setTimeout(() => {
-    const arene = document.getElementById('arene');
-    const areneRect = arene.getBoundingClientRect();
-    const premiereCaseRect = cases[0].div.getBoundingClientRect();
+    const caseRef = cases[index].div.getBoundingClientRect();
     
     caseDepart.style.position = 'absolute';
-    caseDepart.style.top = premiereCaseRect.top + 'px';
-    caseDepart.style.left = (premiereCaseRect.left - 100) + 'px';
+    caseDepart.style.top = `${caseRef.top}px`;
+    caseDepart.style.left = `${caseRef.left + decalageX}px`;
     caseDepart.style.width = '80px';
     caseDepart.style.height = '80px';
-    caseDepart.style.backgroundColor = '#8bc34a';
-    caseDepart.style.border = '3px solid #689f38';
+    caseDepart.style.backgroundColor = couleur;
+    caseDepart.style.border = '3px solid black';
     
-    console.log("Case départ positionnée à", caseDepart.style.left, caseDepart.style.top);
-  }, 100);
-  
+    // Forcer encore un reflow après avoir défini les styles
+    document.body.offsetHeight;
+  }, 300); // Augmenter le délai à 300ms
+
   return caseDepart;
 }
+
+
 
 // Fonction pour gérer l'interaction avec une case
 function interagirAvecCase(position) {
@@ -128,3 +131,24 @@ function interagirAvecCase(position) {
     element.innerText = "";
   }
 }
+function repositionnerCasesDepart() {
+  const caseDepartJ1 = document.getElementById('case-depart-j1');
+  const caseDepartJ2 = document.getElementById('case-depart-j2');
+  
+  if (caseDepartJ1 && caseDepartJ2 && cases.length > 0) {
+    const caseRef1 = cases[0].div.getBoundingClientRect();
+    const caseRef2 = cases[TOTAL_CASES - 1].div.getBoundingClientRect();
+    
+    caseDepartJ1.style.top = `${caseRef1.top}px`;
+    caseDepartJ1.style.left = `${caseRef1.left - 100}px`;
+    
+    caseDepartJ2.style.top = `${caseRef2.top}px`;
+    caseDepartJ2.style.left = `${caseRef2.left + 100}px`;
+  }
+}
+
+// Appeler cette fonction à plusieurs moments pour être sûr
+setTimeout(repositionnerCasesDepart, 500);
+setTimeout(repositionnerCasesDepart, 1000);
+window.addEventListener('load', repositionnerCasesDepart);
+window.addEventListener('resize', repositionnerCasesDepart);
