@@ -147,13 +147,12 @@ h3 {
 }
 
 .joueur::before {
-  content: '👤'; /* Default player icon */
+  content: '👤';
   font-size: 40px;
   text-align: center;
   line-height: 60px;
 }
 
-/* First Case (premiere-case) styling */
 .premiere-case {
   background-color: #8bc34a;
   border: 3px solid #689f38;
@@ -162,8 +161,10 @@ h3 {
   align-items: center;
   font-size: 16px;
   font-weight: bold;
-  width: 80px;
+  width: auto;
   height: 80px;
   position: absolute;
-  top: 0;
+  top: 10px;
+  left: 15%;
+  padding: 10px;
 }

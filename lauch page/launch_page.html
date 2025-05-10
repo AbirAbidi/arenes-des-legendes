@@ -9,20 +9,31 @@
 </head>
 <body>
 
+<div id="player-selection" class="step">
+  <h2>Choisissez le nombre de joueurs (2 à 4)</h2>
+  <div class="player-buttons">
+    <button class="player-btn" data-players="2">2 Joueurs</button>
+    <button class="player-btn" data-players="3">3 Joueurs</button>
+    <button class="player-btn" data-players="4">4 Joueurs</button>
+  </div>
+</div>
+
+<div id="character-selection" class="step" style="display:none;">
+  <h2 id="selection-message">Joueur 1: choisissez votre personnage</h2>
   <div class="container">
-    <button id="previous">&#8592;</button>   <!-- Flèche gauche -->
-    
+    <button id="previous">&#8592;</button>   <!-- Left arrow -->
+
     <div class="card">
       <img id="character-image" src="" alt="Character image">
       <h2 id="character-name"></h2>
       <p id="character-specialite"></p>
       <button id="select-btn" class="select-button">Sélectionner</button>
     </div>
-    
-    <button id="next">&#8594;</button> <!-- Flèche droite -->
+
+    <button id="next">&#8594;</button>  <!-- Right arrow -->
   </div>
+</div>
 
-
-  <script src="launch_page.js"></script>
+<script src="launch_page.js"></script>
 </body>
 </html>
