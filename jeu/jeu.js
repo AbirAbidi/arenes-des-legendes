@@ -207,14 +207,8 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
                 }
             });
         } else {
-            console.error('Empty player selections array in localStorage.');
-            // Add default players for testing
-            players.push(new Guerrier());
-            players.push(new Archer());
-        }
-    } else {
         console.error('No player selections found in localStorage.');
-    }
+    }}
     // -------------------------------- FIN BRING CHARACTER LOCAL STORAGE ---------------------------------------------------//
 
 
@@ -239,8 +233,12 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
             const oldCaseDiv = document.querySelector(`#case-${oldPosition}`);
             if (oldCaseDiv) {
                 const oldPlayerImg = oldCaseDiv.querySelector('img');
+                const oldPlayerNbr = oldCaseDiv.querySelector('.player-number');
                 if (oldPlayerImg) {
                     oldCaseDiv.removeChild(oldPlayerImg);
+                }
+                if (oldPlayerNbr) {
+                    oldCaseDiv.removeChild(oldPlayerNbr);
                 }
             }
         }
@@ -252,6 +250,13 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
             img.src = player.image;
             img.alt = player.name;
             img.classList.add('image');
+
+            const playerNumberDiv = document.createElement("div");
+            const playerIndex = players.findIndex(p => p === player);
+            playerNumberDiv.textContent = `Joueur ${playerIndex + 1}`;
+            playerNumberDiv.classList.add('player-number');
+
+            newCaseDiv.appendChild(playerNumberDiv);
             newCaseDiv.appendChild(img);
         }
     }
