@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Arène des Légendes</title>
+  <style>
+    #arene-container {
+      width: 560px;
+      height: 560px;
+      margin: 20px auto;
+      border: 2px solid #000;
+    }
+
+    .case {
+      background-color: #f0f0f0;
+      border: 1px solid #ccc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .element.bonus {
+      background-color: gold;
+      width: 60%;
+      height: 60%;
+      border-radius: 50%;
+    }
+
+    .element.piege {
+      background-color: crimson;
+      width: 60%;
+      height: 60%;
+      border-radius: 50%;
+    }
+
+    .element.obstacle {
+      background-color: gray;
+      width: 60%;
+      height: 60%;
+    }
+
+    .element {
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="arene-container"></div>
+
+  <script src="arena.js"></script>
+  <script>
+    function afficherNotification(message) {
+      alert(message); // ou utilise une div de notification
+    }
+
+    const arena = new Arena('arene-container', 7, 3, 2, 3, 2);
+    arena.creerArene();
+    arena.initialiserCasesDepart();
+    arena.afficherCasesDepart(2);
+
+    window.addEventListener('resize', () => {
+      arena.repositionnerCasesDepart(2);
+    });
+  </script>
+</body>
+</html>

@@ -2,18 +2,37 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Arène des Légendes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jeu d'Arène</title>
+
+  <!-- Tes fichiers CSS ici -->
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="arene" id="arene"></div>
-  <script src="js/config.js"></script>
+
+  <!-- 🎮 Arène du jeu -->
+ <div id="arene" style="display: grid; gap: 5px;"></div>
+
+  <!-- 📦 Cases de départ des joueurs -->
+  <div id="zone-depart">
+    <div id="caseDepartJ1" class="case-depart">Joueur 1</div>
+    <div id="caseDepartJ2" class="case-depart">Joueur 2</div>
+  </div>
+
+  <!-- 📜 Instructions -->
+  <div id="instructions" class="instructions"></div>
+
+  <!-- 🎲 Bouton de dé (si tu veux en plus) -->
+  <button onclick="lancerDe()">Lancer le dé</button>
+
+  <!-- Tous les scripts JS (dans l'ordre correct !) -->
+  <script src="js/Configuration.js"></script>
   <script src="js/utils.js"></script>
-  <script src="js/notification.js"></script>
-  <script src="js/player.js"></script>
-  <script src="js/player2.js"></script>
-  <script src="js/arena.js"></script>
-  <script src="js/game.js"></script>
+  <script src="js/Player.js"></script>
+  <script src="js/Arene.js"></script>
+  <script src="js/GestionDesTours.js"></script>
+  <script src="js/GestionEvenements.js"></script>
+  <script src="js/Jeu.js"></script>
+  <script src="js/game.js"></script> <!-- Point d'entrée : démarre le jeu -->
 </body>
 </html>

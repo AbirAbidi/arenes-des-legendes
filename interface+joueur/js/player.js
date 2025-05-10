@@ -1,70 +1,86 @@
-// player.js
-// Gestion du joueur et de ses animations
+class Joueur {
+  constructor(nom, idleImage, position = null) {
+    this.nom = nom || "Joueur";
+    this.idleImage = idleImage;  // L'image du joueur
+    this.position = position;
+    this.isMoving = false;
+    this.isJumping = false;
+    this.element = null;
+    this.creerElement();
+  }
 
-let joueurDiv; // Déclaration de la variable joueur
+  // Créer l'élément HTML pour le joueur avec son image
+  creerElement() {
+    this.element = document.createElement('div');
+    this.element.classList.add('joueur');
+    this.element.style.width = '60px';
+    this.element.style.height = '60px';
+    this.element.style.backgroundSize = 'contain';
+    this.element.style.backgroundRepeat = 'no-repeat';
+    this.element.style.backgroundPosition = 'center';
+    this.element.style.transition = 'all 0.3s ease-in-out';
 
-// Création du joueur
-function creerJoueur() {
-  joueurDiv = document.createElement('div');
-  joueurDiv.classList.add('joueur');
-  joueurDiv.style.width = '60px';
-  joueurDiv.style.height = '60px';
-  joueurDiv.style.backgroundSize = 'contain';
-  joueurDiv.style.backgroundRepeat = 'no-repeat';
-  joueurDiv.style.backgroundPosition = 'center';
-  joueurDiv.style.transition = 'all 0.3s ease-in-out';
-  
-  // Chargement de l'image du joueur
-  const img = new Image();
-  img.onload = function() {
-    joueurDiv.style.backgroundImage = `url(${this.src})`;
-    console.log("Image du joueur chargée avec succès");
-  };
-  img.onerror = function() {
-    console.error("Erreur de chargement de l'image du joueur");
-    // Au lieu d'afficher un cercle orange, utiliser une icône de personnage
-    joueurDiv.textContent = '👤';
-    joueurDiv.style.textAlign = 'center';
-    joueurDiv.style.fontSize = '40px';
-    joueurDiv.style.lineHeight = '60px';
-  };
-  img.src = playerIdleImage;
-  
-  return joueurDiv;
-}
+    const img = new Image();
+    img.onload = () => {
+      this.element.style.backgroundImage = `url(${this.idleImage})`;
+    };
+    img.src = this.idleImage;
+  }
 
-// Fonctions d'animation
-function animerDeplacement() {
-  //if (!isMoving) return;
-  //joueurDiv.style.backgroundImage = `url(${walkImages[walkIndex]})`;
-  //walkIndex = (walkIndex + 1) % walkImages.length;
-}
+  // Méthode pour obtenir l'élément HTML du joueur
+  getElement() {
+    return this.element;
+  }
 
-function demarrerMarche() {
-  isMoving = true;
-  walkInterval = setInterval(animerDeplacement, 150);
-}
+  // Déplacer le joueur avec des coordonnées
+  deplacer(deltaX, deltaY) {
+    if (this.isMoving || this.isJumping) return; // Ignorer si le joueur est déjà en mouvement ou en train de sauter
+    this.position += deltaX + deltaY;  // Mise à jour simple de la position
+    this.isMoving = true;
+    setTimeout(() => {
+      this.isMoving = false;
+    }, 300);  // Animation simplifiée en 300ms
+  }
 
-function arreterMarche() {
-  isMoving = false;
-  clearInterval(walkInterval);
-  joueurDiv.style.backgroundImage = `url(${playerIdleImage})`;
-}
+  // Sauter (animation simplifiée)
+  sauter() {
+    if (this.isJumping || this.isMoving) return;
+    this.isJumping = true;
+    setTimeout(() => {
+      this.isJumping = false;
+    }, 500);  // Durée du saut
+  }
 
-function animerSaut() {
-  if (!isJumping) return;
-  joueurDiv.style.backgroundImage = `url(${jumpImages[jumpIndex]})`;
-  jumpIndex = (jumpIndex + 1) % jumpImages.length;
-}
+  // Gérer les touches pressées
+  gererTouche(key) {
+    let deltaX = 0;
+    let deltaY = 0;
 
-function demarrerSaut() {
-  isJumping = true;
-  jumpIndex = 0;
-  jumpInterval = setInterval(animerSaut, 100);
-}
+    switch (key) {
+      case 'ArrowUp':
+      case 'z':
+        deltaY = -1;  // Déplacer vers le haut
+        break;
+      case 'ArrowDown':
+      case 's':
+        deltaY = 1;  // Déplacer vers le bas
+        break;
+      case 'ArrowRight':
+      case 'd':
+        deltaX = 1;  // Déplacer vers la droite
+        break;
+      case 'ArrowLeft':
+      case 'q':
+        deltaX = -1;  // Déplacer vers la gauche
+        break;
+      case ' ':
+      case 'v':
+        this.sauter();
+        return;
+      default:
+        return;  // Ignorer les autres touches
+    }
 
-function arreterSaut() {
-  isJumping = false;
-  clearInterval(jumpInterval);
-  joueurDiv.style.backgroundImage = `url(${playerIdleImage})`;
+    this.deplacer(deltaX, deltaY);
+  }
 }

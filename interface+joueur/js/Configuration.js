@@ -32,15 +32,3 @@ const jumpImages = [
   'jump/Jump8.png'
 ];
 
-// Variables globales d'état du jeu
-let joueurPosition = null;
-let isMoving = false;
-let isJumping = false;
-let walkIndex = 0;
-let jumpIndex = 0;
-let walkInterval;
-let jumpInterval;
-
-// Tableau des cases de l'arène et des positions utilisées
-const positionsUtilisées = new Set();
-const cases = [];
