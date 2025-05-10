@@ -88,6 +88,18 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
 
     // -------------------------------- FIN CREATION ARENE ET CASES ---------------------------------------------------//
 
+    // ki u click depart ti5tafi
+document.getElementById("depart").addEventListener("click", function () {
+    document.getElementById("arene").classList.add('visible');
+    this.style.display = 'none';
+});
+
+    //ki u click dice is being rolled to give a random nbr
+    const  dice = document.getElementById('dice');
+    dice.addEventListener('click',function (){
+        const randomNumber = Math.floor(Math.random() * 6 ) + 1;
+        dice.textContent = randomNumber ;
+    })
 
 
 

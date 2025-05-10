@@ -146,12 +146,7 @@ h3 {
   line-height: 60px;
 }
 
-.joueur::before {
-  content: '👤';
-  font-size: 40px;
-  text-align: center;
-  line-height: 60px;
-}
+
 
 .premiere-case {
   background-color: #8bc34a;
@@ -159,12 +154,37 @@ h3 {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 16px;
+  font-size: 60px;
   font-weight: bold;
   width: auto;
-  height: 80px;
+  height: auto;
   position: absolute;
-  top: 10px;
-  left: 15%;
-  padding: 10px;
+
+  padding: 20px;
 }
+
+.visible {
+  display: grid !important;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+
+.dice {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  background-color: #fff;
+  border: 2px solid #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 15px;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  top: 0;
+  left: 0;
+  margin: 10px;
+}
+
