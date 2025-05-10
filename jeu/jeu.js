@@ -1,11 +1,17 @@
 document.addEventListener('DOMContentLoaded', function() { // Attendre que le DOM soit complètement chargé
 
+    let playerDiceRolls = [];
+    let playerOrder = [];
+    let currentRollingPlayer = 0;
+    let allPlayersRolled = false;
+
 
     class Player {
         constructor(name, image) {
             this.name = name;
             this.image = image;
             this.position = null;
+            this.diceRoll = null ;
         }
 
         setPosition(position) {
@@ -139,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
 
     // ki u click depart ti5tafi
     document.getElementById("depart").addEventListener("click", function () {
-        document.getElementById("arene").classList.add('visible');
+        document.getElementById("dice-container").style.display = "flex";
         this.style.display = 'none';
     });
 
@@ -147,8 +153,83 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
     // -------------------------------- DEBUT DICE ---------------------------------------------------//
     //ki u click dice is being rolled to give a random nbr
     const dice = document.getElementById('dice');
+    const diceResults = document.getElementById('dice-results');
+    const playerTurnIndicator = document.getElementById('player-turn-indicator');
+    const startGameBtn = document.getElementById('start-game-btn');
     dice.addEventListener('click', function() {
-        dice.textContent =  Math.floor(Math.random() * 6) + 1;
+        if (allPlayersRolled) return;
+
+        const randomNumber = Math.floor(Math.random() * 6) + 1;
+        dice.textContent = randomNumber;
+
+        const currentPlayer = players[currentRollingPlayer];
+        currentPlayer.diceRoll = randomNumber;
+
+        // Add result to the results display
+        const resultItem = document.createElement('div');
+        resultItem.classList.add('dice-result-item');
+        resultItem.textContent = `Joueur ${currentRollingPlayer + 1} (${currentPlayer.name}): ${randomNumber}`;
+        diceResults.appendChild(resultItem);
+
+        // Move to next player or finish rolling phase
+        currentRollingPlayer++;
+
+        if (currentRollingPlayer < players.length) {
+            playerTurnIndicator.textContent = `Joueur ${currentRollingPlayer + 1}, lancez le dé`;
+        } else {
+            allPlayersRolled = true;
+            playerTurnIndicator.textContent = `Tous les joueurs ont lancé le dé!`;
+
+            // Determine playing order based on dice rolls (highest first)
+            determinePlayingOrder();
+
+            // Show start button
+            startGameBtn.style.display = 'block';
+        }
+    });
+
+
+    function determinePlayingOrder() {
+        // Create array with player indices and their rolls
+        const playersWithRolls = players.map((player, index) => ({
+            playerIndex: index,
+            roll: player.diceRoll
+        }));
+
+
+        // Sort by roll value (descending)
+        playersWithRolls.sort((a, b) => b.roll - a.roll);
+
+        // Extract the order
+        playerOrder = playersWithRolls.map(p => p.playerIndex);
+
+        // Show the order in the results
+        const orderResult = document.createElement('div');
+        orderResult.classList.add('dice-result-item');
+        orderResult.style.fontWeight = 'bold';
+        orderResult.style.marginTop = '10px';
+
+        let orderText = "Ordre de jeu: ";
+        playerOrder.forEach((playerIndex, orderIndex) => {
+            orderText += `${orderIndex + 1}. Joueur ${playerIndex + 1}`;
+            if (orderIndex < playerOrder.length - 1) {
+                orderText += ", ";
+            }
+        });
+
+        orderResult.textContent = orderText;
+        diceResults.appendChild(orderResult);
+    }
+
+    startGameBtn.addEventListener('click', function() {
+        // Set the first player based on dice roll results
+        currentPlayerIndex = playerOrder[0];
+
+        document.getElementById('dice-container').style.display = 'none';
+
+        document.getElementById('arene').style.display = 'grid';
+
+        updateTurnDisplay();
     });
     // -------------------------------- FIN DICE ---------------------------------------------------//
 
@@ -264,11 +345,14 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
     // Function to switch to the next player's turn
     function nextTurn() {
         if (players.length > 0) {
-            currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+            // Use the player order determined by dice rolls
+            const currentOrderIndex = playerOrder.indexOf(currentPlayerIndex);
+            const nextOrderIndex = (currentOrderIndex + 1) % playerOrder.length;
+            currentPlayerIndex = playerOrder[nextOrderIndex];
+
             updateTurnDisplay();
         }
     }
-
     // Function to handle key presses for movement
     function handleMovement(event) {
         if (players.length === 0) return;

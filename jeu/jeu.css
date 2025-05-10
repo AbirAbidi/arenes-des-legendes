@@ -22,6 +22,99 @@ body, html {
   margin: 10px;
 }
 
+.dice-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.8);
+  border-radius: 15px;
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 500px;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.dice-instructions {
+  font-size: 1.2rem;
+  color: white;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+.player-turn-indicator {
+  font-size: 1rem;
+  color: #ffcc00;
+  margin-bottom: 20px;
+}
+
+.dice {
+  background-color: #d32f2f;
+  color: white;
+  width: auto;
+  height: 80px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 10px auto;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  padding: 10px;
+}
+
+.dice:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
+}
+
+.dice:active {
+  transform: scale(0.95);
+}
+
+.dice-results {
+  margin-top: 20px;
+  color: white;
+  font-size: 0.9rem;
+  min-height: 100px;
+  max-height: 150px;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.dice-result-item {
+  margin: 5px 0;
+  padding: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+}
+
+.start-game-btn {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: all 0.3s ease;
+}
+
+.start-game-btn:hover {
+  background-color: #45a049;
+  transform: scale(1.05);
+}
+
+.start-game-btn:active {
+  transform: scale(0.95);
+}
+
 
 .arene {
   display: grid;
@@ -205,22 +298,5 @@ h3 {
 }
 
 
-.dice {
-  position: absolute;
-  width: 100px;
-  height: 100px;
-  background-color: #fff;
-  border: 2px solid #333;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 15px;
-  font-weight: bold;
-  border-radius: 10px;
-  cursor: pointer;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  top: 0;
-  left: 0;
-  margin: 10px;
-}
+
 
