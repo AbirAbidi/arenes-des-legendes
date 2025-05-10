@@ -5,13 +5,14 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
     let currentRollingPlayer = 0;
     let allPlayersRolled = false;
 
-
+    // -------------------------------- DEBUT CLASSES ---------------------------------------------------//
     class Player {
         constructor(name, image) {
             this.name = name;
             this.image = image;
             this.position = null;
             this.diceRoll = null ;
+            this.lastMoveValid = true ; // why this ? cuz in case i do a move and its beyond border so it wont skip the player turn and chnages only if he does make a move
         }
 
         setPosition(position) {
@@ -24,51 +25,110 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
 
         move(direction) {
             let newPosition = this.position;
+            this.lastMoveValid = true;
 
             switch(direction) {
                 case 'up':
                     if (this.position >= TAILLE) {
                         newPosition = this.position - TAILLE;
+                    }else {
+                        this.lastMoveValid = false;
                     }
                     break;
                 case 'down':
                     if (this.position < TOTAL_CASES - TAILLE) {
                         newPosition = this.position + TAILLE;
+                    }else {
+                        this.lastMoveValid = false;
                     }
                     break;
                 case 'left':
                     if (this.position % TAILLE !== 0) {
                         newPosition = this.position - 1;
+                    }else {
+                        this.lastMoveValid = false;
                     }
                     break;
                 case 'right':
                     if ((this.position + 1) % TAILLE !== 0) {
                         newPosition = this.position + 1;
+                    }else {
+                        this.lastMoveValid = false;
                     }
                     break;
             }
 
-            this.setPosition(newPosition);
+            if (this.lastMoveValid) {
+                this.setPosition(newPosition);
+            }
+
+            return this.lastMoveValid;
         }
     }
 
-    class Guerrier extends Player {
+    class Chevalier extends Player {
         constructor() {
-            super('guerrier', '/assets/characters/guerrier.png');
+            super('chevalier', '/assets/characters/Chevalier.png');
         }
     }
 
-    class Archer extends Player {
+    class Ninja extends Player {
         constructor() {
-            super('archer', '/assets/characters/archer.png');
+            super('ninja', '/assets/characters/Ninja.png');
+        }
+
+        move(direction) {
+            let newPosition = this.position;
+            this.lastMoveValid = true;
+
+            const currentRow = Math.floor(this.position / TAILLE);
+            const currentCol = this.position % TAILLE;
+
+            switch(direction) {
+                case 'up':
+                    if (currentRow >= 2) {
+                        newPosition = this.position - 2 * TAILLE;
+                    } else {
+                        this.lastMoveValid = false;
+                    }
+                    break;
+                case 'down':
+                    if (currentRow <= (Math.floor(TOTAL_CASES / TAILLE) - 3)) {
+                        newPosition = this.position + 2 * TAILLE;
+                    } else {
+                        this.lastMoveValid = false;
+                    }
+                    break;
+                case 'left':
+                    if (currentCol >= 2) {
+                        newPosition = this.position - 2;
+                    } else {
+                        this.lastMoveValid = false;
+                    }
+                    break;
+                case 'right':
+                    if (currentCol <= (TAILLE - 3)) {
+                        newPosition = this.position + 2;
+                    } else {
+                        this.lastMoveValid = false;
+                    }
+                    break;
+            }
+
+            if (this.lastMoveValid) {
+                this.setPosition(newPosition);
+            }
+
+            return this.lastMoveValid;
         }
     }
 
-    class Mage extends Player {
+    class Sorcier extends Player {
         constructor() {
-            super('Mage', '/assets/characters/mage.png');
+            super('sorcier', '/assets/characters/Sorcier.png');
         }
     }
+    // -------------------------------- FIN CLASSES ---------------------------------------------------//
 
 
 
@@ -275,12 +335,12 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
 
             playerSelections.forEach(selection => {
                 let player;
-                if (selection.nom === 'guerrier') {
-                    player = new Guerrier();
-                } else if (selection.nom === 'archer') {
-                    player = new Archer();
-                } else if (selection.nom === 'mage') {
-                    player = new Mage();
+                if (selection.nom === 'Chevalier') {
+                    player = new Chevalier();
+                } else if (selection.nom === 'Ninja') {
+                    player = new Ninja();
+                } else if (selection.nom === 'Sorcier') {
+                    player = new Sorcier();
                 }
 
                 if (player) {
@@ -373,39 +433,38 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
 
         if (direction) {
             const oldPosition = currentPlayer.getPosition();
-            currentPlayer.move(direction);
-
+            const moveResult = currentPlayer.move(direction);
+            if (!moveResult) {
+                alert("Vous ne pouvez pas vous déplacer dans cette direction - limite du plateau!");
+                return; // Garder le tour du joueur actuel
+            }
             // Check if player moved to a valid position
             const newPosition = currentPlayer.getPosition();
-
-            // Check if there's an obstacle
             const newCase = cases.find(c => c.id === newPosition);
             if (newCase && newCase.element.classList.contains('obstacle')) {
-                // If there's an obstacle, revert the move
                 currentPlayer.setPosition(oldPosition);
                 alert("Vous ne pouvez pas aller ici - obstacle!");
-            } else {
-                // Update player position on the grid
-                updatePlayerPosition(currentPlayer, oldPosition);
-
-                // Check for special case effects
-                checkCaseEffect(newPosition);
-
-                // Switch to next player's turn
-                nextTurn();
+                return;
             }
+                updatePlayerPosition(currentPlayer, oldPosition);
+                const skipNextTurn = checkCaseEffect(newPosition);
+                if (!skipNextTurn) {
+                    nextTurn();
+                }
+
         }
     }
+
 
     // Function to check for special case effects
     function checkCaseEffect(position) {
         const caseInfo = cases.find(c => c.id === position);
-        if (!caseInfo) return;
-
+        if (!caseInfo) return false;
+        let keepTurn = false;
         // Check for bonuses
         if (caseInfo.element.classList.contains('bonus')) {
             alert("Bonus! Vous pouvez rejouer.");
-            // Don't switch to next player (implemented by skipping nextTurn() call)
+            keepTurn = true;
         }
 
         // Check for traps
@@ -413,6 +472,7 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
             alert("Piège! Vous perdez votre prochain tour.");
             // Skip player's next turn (could be implemented with a flag)
             nextTurn(); // Skip to next player immediately
+            keepTurn = true;
         }
 
         // Check for surprises
@@ -430,6 +490,7 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
             delete caseInfo.element.dataset.surprise;
             caseInfo.element.innerText = "";
         }
+        return keepTurn;
     }
 
     // Initialize the game
@@ -449,5 +510,9 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
     // Start the game when everything is loaded
     initGame();
     // -------------------------------- FIN WHO'S turn is now ? ---------------------------------------------------//
+
+
+
+
 
 });
