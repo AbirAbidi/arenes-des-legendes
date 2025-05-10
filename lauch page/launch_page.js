@@ -1,17 +1,17 @@
 // Liste des personnages
 const personnages = [
   {
-    nom: "Chevalier",
+    nom: "guerrier",
     specialite: "Résistant, bon en mêlée",
     image: "/assets/characters/guerrier.png",
   },
   {
-    nom: "Ninja",
+    nom: "archer",
     specialite: "Rapide, esquive facile",
     image: "/assets/characters/archer.png",
   },
   {
-    nom: "Sorcier",
+    nom: "mage",
     specialite: "Attaque magique puissante, à distance",
     image: "/assets/characters/mage.png",
   }

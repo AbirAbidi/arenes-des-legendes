@@ -9,6 +9,21 @@ body, html {
   overflow: hidden;
 }
 
+#turn-display {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translateX(-50%);
+  font-size: 20px;
+  font-weight: bold;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 10px;
+  border-radius: 5px;
+  margin: 10px;
+}
+
+
 .arene {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -42,6 +57,22 @@ body, html {
   max-height: 80%;
   object-fit: contain;
 }
+
+.case .player-number {
+  position: absolute;
+  top: 5px;                  /* Position the number on top of the image */
+  left: 50%;                 /* Horizontally center the number */
+  transform: translateX(-50%); /* Adjust centering using translate */
+  font-weight: bold;
+  color: white;              /* Make the text visible on the image */
+  font-size: 14px;           /* Adjust font size */
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  padding: 2px 6px;          /* Padding around the text */
+  border-radius: 5px;        /* Optional: rounded corners */
+  text-align: center;
+}
+
+
 .case:hover {
   transform: scale(1.05);
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
