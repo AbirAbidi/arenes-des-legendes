@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() { // Attendre que le DOM soit complètement chargé
 
+// -------------------------------- DEBUT CREATION ARENE ET CASES ---------------------------------------------------//
     function positionAleatoire() {
         let pos;
         do {
@@ -84,6 +85,10 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
     }
 
     const arene = creerArene();
+
+    // -------------------------------- FIN CREATION ARENE ET CASES ---------------------------------------------------//
+
+
 
 
 })
