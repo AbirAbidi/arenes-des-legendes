@@ -3,9 +3,9 @@
 
 document.addEventListener('DOMContentLoaded', function() {
   console.log("DOM chargé - Initialisation du jeu");
-  
+
   // Création de l'arène
-  const arene = creerArene();
+
   
   // Variables pour le suivi des joueurs
   let joueurPosition = null;
@@ -34,27 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log("Joueur 2 ajouté à la case départ");
   }, 200);
   
-  // Instructions du jeu
-  const instructions = document.createElement('div');
-  instructions.style.position = 'absolute';
-  instructions.style.top = '150px';
-  instructions.style.left = '20px';
-  instructions.style.width = '200px';
-  instructions.style.padding = '10px';
-  instructions.style.backgroundColor = '#f1f1f1';
-  instructions.style.border = '1px solid #ddd';
-  instructions.style.borderRadius = '5px';
-  instructions.style.zIndex = '100';
-  instructions.innerHTML = `
-    <h3>Instructions:</h3>
-    <p>1. Cliquez sur la case DÉPART pour commencer</p>
-    <p>2. Joueur 1: Flèches du clavier</p>
-    <p>3. Joueur 1: ESPACE pour sauter</p>
-    <p>4. Joueur 2: Z,Q,S,D pour déplacer</p>
-    <p>5. Joueur 2: V pour sauter</p>
-    <p>6. Collectez les bonus (★) et évitez les pièges (☠)</p>
-  `;
-  document.body.appendChild(instructions);
+
 
   // Fonction pour entrer dans l'arène - Joueur 1
   function entrerDansArene() {

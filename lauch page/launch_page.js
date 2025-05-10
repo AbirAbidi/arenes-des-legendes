@@ -80,8 +80,9 @@ selectBtn.addEventListener('click', () => {
       displayCharacterSelectionScreen(currentPlayer);
     } else {
       characterSelection.style.display = 'none';
+      localStorage.clear();
       localStorage.setItem('playerSelections', JSON.stringify(playerSelections));
-      console.log('Sélections des personnages:', playerSelections);
+       //console.log('Sélections des personnages:', playerSelections);
       window.location.href = '../jeu/jeu.html';
     }
   }

@@ -2,14 +2,7 @@
 // Fonctions utilitaires pour le jeu
 
 // Fonction pour générer des positions aléatoires
-function positionAleatoire() {
-    let pos;
-    do {
-      pos = Math.floor(Math.random() * TOTAL_CASES);
-    } while (positionsUtilisées.has(pos));
-    positionsUtilisées.add(pos);
-    return pos;
-  }
+
   
   // Système de notification pour remplacer les alertes
   function afficherNotification(message, duration = 2000) {
@@ -29,6 +22,7 @@ function positionAleatoire() {
       setTimeout(() => document.body.removeChild(notification), 500);
     }, duration);
   }
+
   function isCaseOccupee(position) {
     // Vérifier si la position est valide
     if (position < 0 || position >= TOTAL_CASES) return true;
