@@ -28,7 +28,7 @@ function creerJoueur() {
     joueurDiv.style.fontSize = '40px';
     joueurDiv.style.lineHeight = '60px';
   };
-  img.src = playerIdleImage;
+  img.src = characterOne;
   
   return joueurDiv;
 }

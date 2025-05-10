@@ -27,7 +27,7 @@ function creerJoueur2() {
     joueur2Div.style.fontSize = '40px';
     joueur2Div.style.lineHeight = '60px';
   };
-  img.src = player2IdleImage; // à définir dans config.js
+  img.src = player2IdleImage; // à définir dans configuration.js
 
   return joueur2Div;
 }

@@ -9,6 +9,7 @@ const NB_BONUS = 4;
 const NB_PIEGES = 4;
 const NB_SURPRISES = 5;
 
+
 const characterOne = '/assets/player.png';
 const characterTwo = '/assets/player2.png';
 
