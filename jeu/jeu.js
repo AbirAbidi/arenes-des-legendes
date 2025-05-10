@@ -3,9 +3,11 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
 // -------------------------------- DEBUT CREATION ARENE ET CASES ---------------------------------------------------//
     function positionAleatoire() {
         let pos;
+        const cornerPositions = [TOP_LEFT_CORNER, TOP_RIGHT_CORNER, BOTTOM_LEFT_CORNER, BOTTOM_RIGHT_CORNER];
+
         do {
             pos = Math.floor(Math.random() * TOTAL_CASES);
-        } while (positionsUtilisées.has(pos));
+        } while (positionsUtilisées.has(pos) || cornerPositions.includes(pos)); //abir here u might be wondring wtf but dw u smart cuz u just excludes the 4 corners so the obsacles and the other shit wont appear there and create conflict
         positionsUtilisées.add(pos);
         return pos;
     }
@@ -33,26 +35,7 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
             cases.push({ div: caseDiv, element, id: i });
 
             // Gestion de l'effet surprise sur clic
-            caseDiv.addEventListener('click', function() {
-                this.classList.add('surprise');
-                setTimeout(() => this.classList.remove('surprise'), 500);
 
-                const elem = cases[i].element;
-                // Utilisation de notifications au lieu des alertes pour éviter de bloquer l'animation
-                if (elem.classList.contains('bonus')) {
-                    afficherNotification("🎁 Vous avez découvert un BONUS !");
-                } else if (elem.classList.contains('piege')) {
-                    afficherNotification("💥 Oh non, un PIÈGE !");
-                } else if (elem.classList.contains('obstacle')) {
-                    afficherNotification("⛔ C'est un OBSTACLE !");
-                } else if (elem.dataset.surprise === 'bonus') {
-                    afficherNotification("🎁 Surprise ! C'était un BONUS caché !");
-                } else if (elem.dataset.surprise === 'piege') {
-                    afficherNotification("💥 Surprise ! C'était un PIÈGE caché !");
-                } else {
-                    afficherNotification("🔍 Rien de spécial ici...");
-                }
-            });
         }
 
         // Obstacles visibles
@@ -89,10 +72,33 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
     // -------------------------------- FIN CREATION ARENE ET CASES ---------------------------------------------------//
 
     // ki u click depart ti5tafi
-document.getElementById("depart").addEventListener("click", function () {
+    document.getElementById("depart").addEventListener("click", function () {
     document.getElementById("arene").classList.add('visible');
     this.style.display = 'none';
 });
+
+
+
+    function placePlayerInCorner(playerSelection){
+        //kil mongela
+        const cornerPositions = [TOP_LEFT_CORNER, TOP_RIGHT_CORNER,BOTTOM_RIGHT_CORNER,BOTTOM_LEFT_CORNER];
+        playerSelection.forEach((selection,index) => {
+            if (index < cornerPositions.length) {
+                const playerCornerIndex = cornerPositions[index];
+                const caseDiv = cases[playerCornerIndex].div;
+                const img = document.createElement("img");
+                img.src = selection.image ;
+                img.alt = selection.name;
+                img.classList.add('image');
+                caseDiv.appendChild(img);
+                const nameDiv = document.createElement("div");
+                nameDiv.textContent = selection.name;
+                caseDiv.appendChild(nameDiv);
+            }
+        })
+
+    }
+
 
     //ki u click dice is being rolled to give a random nbr
     const  dice = document.getElementById('dice');
@@ -100,6 +106,18 @@ document.getElementById("depart").addEventListener("click", function () {
         const randomNumber = Math.floor(Math.random() * 6 ) + 1;
         dice.textContent = randomNumber ;
     })
+
+    // to get the array that has the palyer's charcters
+        const playerSelectionsData = localStorage.getItem('playerSelections');
+        const playerSelections = JSON.parse(playerSelectionsData);
+        if (playerSelections && playerSelections.length > 0) {
+            console.log('Player selections:', playerSelections);
+            placePlayerInCorner(playerSelections);
+        } else {
+            console.error('No player selections found in localStorage.');
+        }
+
+
 
 
 

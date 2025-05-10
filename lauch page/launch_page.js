@@ -69,6 +69,7 @@ playerButtons.forEach(button => {
 
 // Save  and move to the next player
 selectBtn.addEventListener('click', () => {
+
   const personnageSelectionne = personnages[index];
   let confirmation = window.confirm("Vous avez choisi " + personnageSelectionne.nom + ", voulez-vous confirmer votre choix?");
   if (confirmation) {
@@ -80,7 +81,7 @@ selectBtn.addEventListener('click', () => {
       displayCharacterSelectionScreen(currentPlayer);
     } else {
       characterSelection.style.display = 'none';
-      localStorage.clear();
+      playerSelections = playerSelections.filter(selection => selection !== null); // bech ken fama null fi array tna7ih idk it caused a problem
       localStorage.setItem('playerSelections', JSON.stringify(playerSelections));
        //console.log('Sélections des personnages:', playerSelections);
       window.location.href = '../jeu/jeu.html';

@@ -36,6 +36,12 @@ body, html {
   box-sizing: border-box; /* Pour que les bordures ne changent pas la taille */
 }
 
+/* this my dear abir is for when the charcater appear in the case so it will be centered XD*/
+.case .image {
+  max-width: 80%;
+  max-height: 80%;
+  object-fit: contain;
+}
 .case:hover {
   transform: scale(1.05);
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);

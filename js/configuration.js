@@ -9,6 +9,11 @@ const NB_BONUS = 4;
 const NB_PIEGES = 4;
 const NB_SURPRISES = 5;
 
+//hethi like win bech yit7atou les characteres
+const TOP_LEFT_CORNER = 0 ;
+const TOP_RIGHT_CORNER = 6 ; // which is taille -1 = 7-1
+const BOTTOM_RIGHT_CORNER = 48 ;// 7*7 -1
+const BOTTOM_LEFT_CORNER = 42 // total_cases - taille
 
 const characterOne = '/assets/player.png';
 const characterTwo = '/assets/player2.png';
