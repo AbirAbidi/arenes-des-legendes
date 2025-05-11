@@ -8,6 +8,7 @@
 </head>
 
 <body>
+<div class="game-container">
 <div class="instructions">
   <h3>Instructions:</h3>
   <p>1. Cliquez sur la case DÉPART pour commencer</p>
@@ -19,25 +20,25 @@
 </div>
 
 <div id="turn-display" class="turn-display">Tour de: Joueur 1</div>
+<div id="health-panel" class="health-panel" style="display:none;"></div>
+<div id="action-panel" class="action-panel" style="display:none;"></div>
 
-
-
-<div id="dice-container" class="dice-container" style="display:none;">
-  <div id="dice-instructions" class="dice-instructions">Lancez le dé pour déterminer l'ordre de jeu!</div>
+  <div id="the_big_dice_container" style="display:none;">
+<div id="dice-container" class="dice-container" >
+  <div id="dice-instructions" class="dice-instructions" >Lancez le dé pour déterminer l'ordre de jeu!</div>
   <div id="player-turn-indicator" class="player-turn-indicator">Joueur 1, lancez le dé</div>
   <div id="dice" class="dice">Rouler</div>
   <div id="dice-results" class="dice-results"></div>
   <button id="start-game-btn" class="start-game-btn" style="display:none;">Commencer la partie</button>
 </div>
-
+  </div>
 
   <div class="arene" id="arene" style="display:none;"></div>
-  <div class="case premiere-case" id="depart">DÉPART</div>
+  <div class="premiere-case" id="depart">DÉPART</div>
+</div>
 
 
   <script src="../configuration.js"></script>
   <script src="jeu.js"></script>
-
-
 </body>
 </html>

@@ -19,3 +19,6 @@ const BOTTOM_LEFT_CORNER = TOTAL_CASES - TAILLE // total_cases - taille
 // Tableau des cases de l'arène et des positions utilisées
 const positionsUtilisées = new Set();
 const cases = [];
+
+//touskie player
+const INITIAL_HEALTH = 100 ;
