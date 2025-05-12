@@ -397,4 +397,46 @@ h3 {
 
 
 
+/*   all about actions attacks and stuff*/
+/* CSS for attack buttons */
+.action-button.active {
+  background-color: #4CAF50;
+  color: white;
+}
 
+#btn-attack-rapid {
+  background-color: #ffeb3b;
+  transition: all 0.3s;
+}
+
+#btn-attack-rapid:hover {
+  background-color: #ffd740;
+}
+
+#btn-attack-heavy {
+  background-color: #ff9800;
+  transition: all 0.3s;
+}
+
+#btn-attack-heavy:hover {
+  background-color: #f57c00;
+}
+
+#btn-attack-rapid.active {
+  background-color: #fbc02d;
+}
+
+#btn-attack-heavy.active {
+  background-color: #e65100;
+}
+
+/* Animation for attack effects */
+@keyframes damageEffect {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.2); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.damage-effect {
+  animation: damageEffect 0.5s ease-in-out;
+}

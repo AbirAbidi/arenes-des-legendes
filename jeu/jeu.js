@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
             return this.lastMoveValid;
         }
 
-        attack() {
+        attack(attackType = 'rapid') {
             const adjacentPositions = this.getAdjacentPositions();
             const targets = players.filter(p => p !== this && adjacentPositions.includes(p.position));
 
@@ -88,18 +88,35 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
 
             // Simple implementation: attack the first target found
             const target = targets[0];
-            const damage = Math.floor(Math.random() * 10) + 10; // Random damage between 10-19
+            const targetIndex = players.findIndex(p => p === target);
+
+            // Damage calculation based on attack type
+            let damage, attackMessage;
+
+            if (attackType === 'rapid') {
+                damage = Math.floor(Math.random() * 8) + 8; // Random damage between 8-15
+                attackMessage = `${this.name} effectue une attaque rapide sur ${target.name}`;
+            } else if (attackType === 'heavy') {
+                damage = Math.floor(Math.random() * 12) + 15; // Random damage between 15-26
+                attackMessage = `${this.name} effectue une attaque lourde sur ${target.name}`;
+            } else {
+                // Default attack for backward compatibility
+                damage = Math.floor(Math.random() * 10) + 10; // Random damage between 10-19
+                attackMessage = `${this.name} attaque ${target.name}`;
+            }
 
             // Apply defense reduction if target is defending
             let finalDamage = damage;
             if (target.isDefending) {
                 finalDamage = Math.floor(damage / 2);
                 target.isDefending = false; // Defense is consumed
+                attackMessage += ` (défense réduit les dégâts de moitié)`;
             }
 
             target.health = Math.max(0, target.health - finalDamage);
+            applyDamageEffect(targetIndex);
 
-            alert(`${this.name} attaque ${target.name} pour ${finalDamage} points de dégâts!`);
+            alert(`${attackMessage} pour ${finalDamage} points de dégâts!`);
             updateHealthBars();
 
             return true;
@@ -545,7 +562,8 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
 
         const actions = [
             { id: 'move', text: 'Se Déplacer' },
-            { id: 'attack', text: 'Attaquer' },
+            { id: 'attack-rapid', text: 'Attaque Rapide' },
+            { id: 'attack-heavy', text: 'Attaque Lourde' },
             { id: 'special', text: 'Pouvoir Spécial' },
             { id: 'defend', text: 'Se Défendre' },
             { id: 'dodge', text: 'Tenter Esquive' }
@@ -579,17 +597,19 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
         document.getElementById(`btn-${actionId}`).classList.add('active');
 
         currentAction = actionId;
-
-        // Handle immediate actions
         let actionCompleted = false;
-
+        // Handle immediate actions
         switch(actionId) {
             case 'move':
                 //alert("Utilisez les flèches du clavier pour vous déplacer.");
                 break;
 
-            case 'attack':
-                actionCompleted = currentPlayer.attack();
+            case 'attack-rapid':
+                actionCompleted = currentPlayer.attack('rapid');
+                break;
+
+            case 'attack-heavy':
+                actionCompleted = currentPlayer.attack('heavy');
                 break;
 
             case 'special':
@@ -711,6 +731,7 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
 
 
     // -------------------------------- DEBUT WHO'S turn is now ? ---------------------------------------------------//
+    let attackPriority = {};
     function updateTurnDisplay() {
         if (players.length > 0) {
             turnDisplay.textContent = `Tour de: Joueur ${currentPlayerIndex + 1} (${players[currentPlayerIndex].name})`;
@@ -763,12 +784,33 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
             // Skip defeated players
             let nextPlayerFound = false;
             let attempts = 0;
+            let attackTypeOrder = [];
+            for (let i = 0; i < playerOrder.length; i++) {
+                const playerIdx = playerOrder[i];
+                const attackType = attackPriority[playerIdx] || 'normal';
+                attackTypeOrder.push({
 
+                    playerIndex: playerIdx,
+                attackType: attackType
+        });
+    }
+
+                // Sort players by attack type priority: rapid > normal > heavy
+                attackTypeOrder.sort((a, b) => {
+                    if (a.attackType === 'rapid' && b.attackType !== 'rapid') return -1;
+                    if (a.attackType !== 'rapid' && b.attackType === 'rapid') return 1;
+                    if (a.attackType === 'normal' && b.attackType === 'heavy') return -1;
+                    if (a.attackType === 'heavy' && b.attackType === 'normal') return 1;
+                    return 0;
+                });
+
+                // Reset attack priorities for next round
+                attackPriority = {};
             while (!nextPlayerFound && attempts < players.length) {
                 // Use the player order determined by dice rolls
-                const currentOrderIndex = playerOrder.indexOf(currentPlayerIndex);
-                const nextOrderIndex = (currentOrderIndex + 1) % playerOrder.length;
-                currentPlayerIndex = playerOrder[nextOrderIndex];
+                const currentOrderIndex = attackTypeOrder.findIndex(p => p.playerIndex === currentPlayerIndex);
+                const nextOrderIndex = (currentOrderIndex + 1) % attackTypeOrder.length;
+                currentPlayerIndex = attackTypeOrder[nextOrderIndex].playerIndex;
 
                 // Skip players with no health
                 if (players[currentPlayerIndex].health > 0) {
@@ -782,6 +824,7 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
             resetActionButtons();
         }
     }
+    // Modify handleActionButtonClick to store attack types
     // Function to handle key presses for movement
     function handleMovement(event) {
         if (players.length === 0 || !actionButtonsEnabled || currentAction !== 'move') return;
@@ -912,9 +955,10 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
         }
 
         // Check if player has been defeated after effects
-        if (player.health <= 0) {
+        if (player.health <= 0 && player.position !== null) {
+            removePlayerFromBoard(player);
             alert(`Joueur ${players.indexOf(player) + 1} (${player.name}) a été vaincu!`);
-
+            player.position = null ;
             // Check if game is over (one player left)
             const alivePlayers = players.filter(p => p.health > 0);
             if (alivePlayers.length === 1) {
@@ -949,6 +993,50 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
 
 
 
+    // -------------------------------- DEBUT DAMAGE EFFECT FUNCTIONS  ---------------------------------------------------//
+    function applyDamageEffect(playerIndex) {
+        const healthBar = document.getElementById(`health-bar-${playerIndex}`);
+        if (healthBar) {
+            // Add the class for animation
+            healthBar.classList.add('damage-effect');
+
+            // Remove the class after animation completes
+            setTimeout(() => {
+                healthBar.classList.remove('damage-effect');
+            }, 500);
+        }
+    }
+
+    // -------------------------------- FIN DAMAGE EFFECT FUNCTIONS  ---------------------------------------------------//
+
+
+    // cuz for some fkn reason when they die they dont fkn dissapear
+    function removePlayerFromBoard(player) {
+        // Remove player image and number from the board
+        const playerPosition = player.getPosition();
+        if (playerPosition !== null) {
+            const caseDiv = document.querySelector(`#case-${playerPosition}`);
+            if (caseDiv) {
+                // Find the player's exact elements by specific matching
+                const playerIndex = players.findIndex(p => p === player);
+
+                // Find and remove only the specific player's image
+                Array.from(caseDiv.children).forEach(child => {
+                    if (child.tagName === 'IMG' && child.alt === player.name) {
+                        child.remove();
+                    }
+                    // Find and remove only the specific player's number div
+                    if (child.classList.contains('player-number') &&
+                        child.textContent === `Joueur ${playerIndex + 1}`) {
+                        child.remove();
+                    }
+                });
+            }
+        }
+
+        // Mark the player as removed from the board
+        player.position = null;
+    }
 
 });
 
