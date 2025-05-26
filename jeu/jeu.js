@@ -35,7 +35,6 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
             return this.position;
         }
 
-        //TODO : update this so ninja can move and attack too
         move(direction) {
             let newPosition = this.position;
             this.lastMoveValid = true;
@@ -79,7 +78,6 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
         }
 
 //TODO update attack so sorcier can attack even 2-3 cases far
-        //TODO : add a dice for attacks cuz not always it works 1-2 fails / 3-5 reussite degats normaux / 6 copu critique ( update the random)
         attack(attackType) {
             const adjacentPositions = this.getAdjacentPositions();
             const targets = players.filter(p => p !== this && adjacentPositions.includes(p.position));
@@ -93,34 +91,43 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
             const target = targets[0];
             const targetIndex = players.findIndex(p => p === target);
 
-            // Damage calculation based on attack type
-            let damage, attackMessage;
+            // Afficher le dé
+            const diceDiv = document.getElementById("div-dice-bottom");
+            const attackDice = document.getElementById("attack-dice");
+            diceDiv.style.display = "flex";
+            attackDice.textContent = "?";
 
-            if (attackType === 'rapid') {
-                damage = Math.floor(Math.random() * 8) + 8; // Random damage between 8-15
-                attackMessage = `${this.name} effectue une attaque rapide sur ${target.name}`;
-            } else if (attackType === 'heavy') {
-                damage = Math.floor(Math.random() * 12) + 15; // Random damage between 15-26
-                attackMessage = `${this.name} effectue une attaque lourde sur ${target.name}`;
-            } else {
-                // Default attack for backward compatibility
-                damage = Math.floor(Math.random() * 10) + 10; // Random damage between 10-19
-                attackMessage = `${this.name} attaque ${target.name}`;
+            attackDice.onclick = () => {
+                const diceResult = Math.floor(Math.random() * 6) + 1;
+                attackDice.textContent = diceResult.toString(); // idk why this is not working but the rsult shows in alert so idgaf
+                let damage = 0;
+                let attackMessage = `${this.name} tente une attaque sur ${target.name}`;
+                if (diceResult <= 2) {
+                    damage = 0;
+                    attackMessage += ` mais échoue (résultat du dé: ${diceResult})`;
+                } else if ([3, 4, 5].includes(diceResult) && attackType === 'rapid') {
+                    damage = Math.floor(Math.random() * 8) + 8; // 8-15
+                    attackMessage = `${this.name} effectue une attaque ${attackType} sur ${target.name}`;
+                } else if (diceResult === 6 && attackType === 'rapid') {
+                    damage = Math.floor(Math.random() * 12) + 15; // 15-26
+                    attackMessage = `${this.name} effectue une attaque ${attackType} puissante sur ${target.name}`;
+                }else if ([3, 4, 5].includes(diceResult) && attackType === 'heavy') {
+                    damage = Math.floor(Math.random() * 4) + 27; // 27-30
+                    attackMessage = `${this.name} effectue une attaque ${attackType} sur ${target.name}`;
+                }else if (diceResult === 6 && attackType === 'heavy') {
+                    damage = Math.floor(Math.random() * 10) + 31; // 31-40
+                    attackMessage = `${this.name} effectue une attaque ${attackType} puissante sur ${target.name}`;
+                }
+
+                target.health = Math.max(0, target.health - damage);
+                applyDamageEffect(targetIndex);
+                alert(`${attackMessage} pour ${damage} points de dégâts !`);
+                updateHealthBars();
+
+                diceDiv.style.display = "none";
+                attackDice.onclick = null;
             }
 
-            // Apply defense reduction if target is defending
-            let finalDamage = damage;
-            if (target.isDefending) {
-                finalDamage = Math.floor(damage / 2);
-                target.isDefending = false; // Defense is consumed
-                attackMessage += ` (défense réduit les dégâts de moitié)`;
-            }
-
-            target.health = Math.max(0, target.health - finalDamage);
-            applyDamageEffect(targetIndex);
-
-            alert(`${attackMessage} pour ${finalDamage} points de dégâts!`);
-            updateHealthBars();
 
             return true;
         }
@@ -266,9 +273,18 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
                     }
                     break;
             }
-
+//3leh hethi mr nefzi 5atir fi  cahier de charge lezim ninja ybougi w yajim yattaki 3leh ma nidrouch
             if (this.lastMoveValid) {
                 this.setPosition(newPosition);
+
+                setTimeout(() => {
+                    let type = prompt("Tapez 'rapid' pour attaque rapide ou 'heavy' pour attaque lourde :").toLowerCase();
+                    if (type === 'rapid' || type === 'heavy') { // njeh rabi 3leh 5atir bech ywali handling ta3 buttonet w eni fadit
+                        this.attack(type);
+                    } else {
+                        alert("Type d'attaque invalide, attaque annulée.");
+                    }
+                    }, 100);// why 100 so movment visually will be done after alert appear ( 5ra ta3 dev rani)
             }
 
             return this.lastMoveValid;
@@ -631,10 +647,8 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
 
         currentAction = actionId;
         let actionCompleted = false;
-        // Handle immediate actions
         switch(actionId) {
             case 'move':
-                //alert("Utilisez les flèches du clavier pour vous déplacer.");
                 break;
 
             case 'attack-rapid':
