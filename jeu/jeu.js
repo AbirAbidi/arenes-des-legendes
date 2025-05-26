@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
             return this.position;
         }
 
+        //TODO : update this so ninja can move and attack too
         move(direction) {
             let newPosition = this.position;
             this.lastMoveValid = true;
@@ -77,7 +78,9 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
             return this.lastMoveValid;
         }
 
-        attack(attackType = 'rapid') {
+//TODO update attack so sorcier can attack even 2-3 cases far
+        //TODO : add a dice for attacks cuz not always it works 1-2 fails / 3-5 reussite degats normaux / 6 copu critique ( update the random)
+        attack(attackType) {
             const adjacentPositions = this.getAdjacentPositions();
             const targets = players.filter(p => p !== this && adjacentPositions.includes(p.position));
 
@@ -122,18 +125,48 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
             return true;
         }
 
-        specialPower() {
-            alert(`${this.name} utilise son pouvoir spécial!`);
-            // Implementation depends on character type
+        specialPower(player) {
+            // TODO : terminer les pouvoirs special des charcaters ( creer les 3 fcts )
+            // ti mahou ma yajim y3awid yista3mlha keni ba3d 3 fois
+            if (player.disponibilite > 0) {
+                alert(`Pouvoir spécial indisponible. Recharge : ${player.disponibilite} tour(s) restant(s).`);
+                return false;
+            }
+
+            switch (player.type) {
+                case 'chevalier':
+                    // Pouvoir : Coup de guerre (dégâts sur un ennemi proche)
+                    alert('Chevalier utilise Coup de guerre !');
+                    dealDamageToNearestEnemy(player, 30); //  30 dégâts
+                    break;
+
+                case 'ninja':
+                    // Pouvoir : Double attaque (deux attaques rapides)
+                    alert('Ninja utilise Double attaque !');
+                    attackTwice(player);
+                    break;
+
+                case 'sorcier':
+                    // Pouvoir : Tempête magique (zone d’effet autour du joueur)
+                    alert('Sorcier utilise Tempête magique !');
+                    magicStorm(player);
+                    break;
+
+            }
+
+            // Après utilisation, lancer la recharge (3 tours)
+            player.disponibilite = 3;
             return true;
         }
 
+// TODO : defend function
         defend() {
             this.isDefending = true;
             alert(`${this.name} se prépare à défendre!`);
             return true;
         }
 
+        // TODO : finish the dodge too ( idk how tf m gonna to i dont get it)
         dodge() {
             const dodgeSuccess = Math.random() > 0.5; // 50% chance
             if (dodgeSuccess) {
@@ -702,8 +735,6 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
             // Check if player is defeated
             if (player.health <= 0) {
                 const playerIndex = players.findIndex(p => p === player);
-                alert(`Joueur ${playerIndex + 1} (${player.name}) a été vaincu!`);
-
                 // Remove player from the game board
                 if (player.position !== null) {
                     const caseDiv = document.querySelector(`#case-${player.position}`);
@@ -826,6 +857,7 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
     }
     // Modify handleActionButtonClick to store attack types
     // Function to handle key presses for movement
+    //TODO : update so when game is over we go back to launch page
     function handleMovement(event) {
         if (players.length === 0 || !actionButtonsEnabled || currentAction !== 'move') return;
 
@@ -858,6 +890,16 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
                 alert("Vous ne pouvez pas aller ici - obstacle!");
                 return;
             }
+
+            // -----------------bech 2 or more players can be in the same case-----------------
+            const autreJoueurSurCase = players.some(p => p !== currentPlayer && p.getPosition() === newPosition);
+            if (autreJoueurSurCase) {
+                currentPlayer.setPosition(oldPosition);
+                alert("Cette case est déjà occupée par un autre joueur !");
+                return;
+            }
+            //---------------------------------------------------------------------------------------
+
                 updatePlayerPosition(currentPlayer, oldPosition);
                 const skipNextTurn = checkCaseEffect(newPosition, currentPlayer);
                 resetActionButtons();
@@ -957,7 +999,6 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
         // Check if player has been defeated after effects
         if (player.health <= 0 && player.position !== null) {
             removePlayerFromBoard(player);
-            alert(`Joueur ${players.indexOf(player) + 1} (${player.name}) a été vaincu!`);
             player.position = null ;
             // Check if game is over (one player left)
             const alivePlayers = players.filter(p => p.health > 0);
@@ -965,6 +1006,7 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
                 const winnerIndex = players.findIndex(p => p === alivePlayers[0]);
                 alert(`Partie terminée! Joueur ${winnerIndex + 1} (${alivePlayers[0].name}) a gagné!`);
                 enableActionButtons(false);
+
             }
         }
 
