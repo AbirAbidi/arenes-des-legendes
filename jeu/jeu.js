@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
                 return false;
             }
 
-            // Simple implementation: attack the first target found
+            //  attack the first target found do ik is it on the right or on the left ( no i dont ) but again idgaf
             const target = targets[0];
             const targetIndex = players.findIndex(p => p === target);
 
@@ -107,21 +107,24 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
                     attackMessage += ` mais échoue (résultat du dé: ${diceResult})`;
                 } else if ([3, 4, 5].includes(diceResult) && attackType === 'rapid') {
                     damage = Math.floor(Math.random() * 8) + 8; // 8-15
-                    attackMessage = `${this.name} effectue une attaque ${attackType} sur ${target.name}`;
                 } else if (diceResult === 6 && attackType === 'rapid') {
                     damage = Math.floor(Math.random() * 12) + 15; // 15-26
-                    attackMessage = `${this.name} effectue une attaque ${attackType} puissante sur ${target.name}`;
                 }else if ([3, 4, 5].includes(diceResult) && attackType === 'heavy') {
                     damage = Math.floor(Math.random() * 4) + 27; // 27-30
-                    attackMessage = `${this.name} effectue une attaque ${attackType} sur ${target.name}`;
                 }else if (diceResult === 6 && attackType === 'heavy') {
                     damage = Math.floor(Math.random() * 10) + 31; // 31-40
-                    attackMessage = `${this.name} effectue une attaque ${attackType} puissante sur ${target.name}`;
                 }
 
+                alert(`${attackMessage} pour ${damage} points de dégâts !`);
+                // to see if there is defense fili 9balha
+                if (target.isDefending) {
+                    const reduced = Math.floor(damage / 2);
+                    alert(`${target.name} se défend ! Dégâts réduits de ${damage} à ${reduced}.`);
+                    damage = reduced ;
+                    target.isDefending = false; // Réinitialiser la défense après l’attaque
+                }
                 target.health = Math.max(0, target.health - damage);
                 applyDamageEffect(targetIndex);
-                alert(`${attackMessage} pour ${damage} points de dégâts !`);
                 updateHealthBars();
 
                 diceDiv.style.display = "none";
@@ -166,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
             return true;
         }
 
-// TODO : defend function
+        // m gonna make it take the damage and reduce it bu half
         defend() {
             this.isDefending = true;
             alert(`${this.name} se prépare à défendre!`);
@@ -826,38 +829,54 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
     // Function to switch to the next player's turn
     function nextTurn() {
         if (players.length > 0) {
-            // Skip defeated players
+            // Si le joueur actuel est mort, sauter directement
+            if (players[currentPlayerIndex].health <= 0) {
+                let found = false;
+                for (let i = 0; i < players.length; i++) {
+                    const idx = (currentPlayerIndex + i + 1) % players.length;
+                    if (players[idx].health > 0) {
+                        currentPlayerIndex = idx;
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
             let nextPlayerFound = false;
             let attempts = 0;
+
+            // Liste des joueurs vivants avec leurs priorités d'attaque
             let attackTypeOrder = [];
             for (let i = 0; i < playerOrder.length; i++) {
                 const playerIdx = playerOrder[i];
-                const attackType = attackPriority[playerIdx] || 'normal';
-                attackTypeOrder.push({
+                const player = players[playerIdx];
+                if (player.health > 0) {
+                    const attackType = attackPriority[playerIdx] || 'normal';
+                    attackTypeOrder.push({
+                        playerIndex: playerIdx,
+                        attackType: attackType
+                    });
+                }
+            }
 
-                    playerIndex: playerIdx,
-                attackType: attackType
-        });
-    }
+            // Tri des priorités d'attaque
+            attackTypeOrder.sort((a, b) => {
+                if (a.attackType === 'rapid' && b.attackType !== 'rapid') return -1;
+                if (a.attackType !== 'rapid' && b.attackType === 'rapid') return 1;
+                if (a.attackType === 'normal' && b.attackType === 'heavy') return -1;
+                if (a.attackType === 'heavy' && b.attackType === 'normal') return 1;
+                return 0;
+            });
 
-                // Sort players by attack type priority: rapid > normal > heavy
-                attackTypeOrder.sort((a, b) => {
-                    if (a.attackType === 'rapid' && b.attackType !== 'rapid') return -1;
-                    if (a.attackType !== 'rapid' && b.attackType === 'rapid') return 1;
-                    if (a.attackType === 'normal' && b.attackType === 'heavy') return -1;
-                    if (a.attackType === 'heavy' && b.attackType === 'normal') return 1;
-                    return 0;
-                });
+            // Réinitialiser les priorités
+            attackPriority = {};
 
-                // Reset attack priorities for next round
-                attackPriority = {};
-            while (!nextPlayerFound && attempts < players.length) {
-                // Use the player order determined by dice rolls
+            // Passer au prochain joueur vivant
+            while (!nextPlayerFound && attempts < attackTypeOrder.length) {
                 const currentOrderIndex = attackTypeOrder.findIndex(p => p.playerIndex === currentPlayerIndex);
                 const nextOrderIndex = (currentOrderIndex + 1) % attackTypeOrder.length;
                 currentPlayerIndex = attackTypeOrder[nextOrderIndex].playerIndex;
 
-                // Skip players with no health
                 if (players[currentPlayerIndex].health > 0) {
                     nextPlayerFound = true;
                 }
@@ -869,6 +888,7 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
             resetActionButtons();
         }
     }
+
     // Modify handleActionButtonClick to store attack types
     // Function to handle key presses for movement
     //TODO : update so when game is over we go back to launch page
@@ -879,15 +899,10 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
         let direction = '';
 
         // Determine direction based on key press
-        if (event.key === 'ArrowUp') {
-            direction = 'up';
-        } else if (event.key === 'ArrowDown') {
-            direction = 'down';
-        } else if (event.key === 'ArrowLeft') {
-            direction = 'left';
-        } else if (event.key === 'ArrowRight') {
-            direction = 'right';
-        }
+        if (event.key === 'ArrowUp') direction = 'up';
+        else if (event.key === 'ArrowDown') direction = 'down';
+        else if (event.key === 'ArrowLeft') direction = 'left';
+        else if (event.key === 'ArrowRight') direction = 'right';
 
         if (direction) {
             const oldPosition = currentPlayer.getPosition();
@@ -905,8 +920,9 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
                 return;
             }
 
-            // -----------------bech 2 or more players can be in the same case-----------------
-            const autreJoueurSurCase = players.some(p => p !== currentPlayer && p.getPosition() === newPosition);
+            // -----------------bech 2 or more players cant be in the same case-----------------
+            const autreJoueurSurCase = players.some(p =>
+                p !== currentPlayer && p.getPosition() === newPosition && p.health>0);
             if (autreJoueurSurCase) {
                 currentPlayer.setPosition(oldPosition);
                 alert("Cette case est déjà occupée par un autre joueur !");
