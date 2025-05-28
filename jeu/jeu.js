@@ -1,3 +1,36 @@
+/*
+
+## Classes des Personnages
+Le code définit trois classes de personnages héritant de la classe `Player` de base :
+* **Chevalier**, **Ninja** et **Sorcier**. Chaque personnage possède des caractéristiques uniques
+* - le Ninja peut se déplacer de 2 cases et attaquer automatiquement après mouvement,
+* le Sorcier peut attaquer à distance de 2 cases, et le Chevalier a des capacités d'attaque standard. Tous possèdent un pouvoir spécial avec un système de recharge de 3 tours.
+
+## Création de l'Arène
+La fonction `creerArene()` génère dynamiquement une grille de jeu avec des obstacles visibles, des bonus de santé,
+* des pièges dangereux, et des cases mystères marquées d'un "?" qui révèlent des surprises positives ou négatives.
+* Les positions sont générées aléatoirement en évitant les coins réservés aux joueurs.
+
+## Système de Tours
+Le jeu commence par une phase de lancement de dés pour déterminer l'ordre de jeu,
+* les joueurs ayant obtenu les scores les plus élevés jouant en premier. La fonction `nextTurn()`
+gère la rotation entre les joueurs vivants en respectant les priorités d'attaque (attaque rapide > pas d'attaque > attaque lourde).
+
+## Actions de Combat
+Les joueurs peuvent effectuer différentes actions : se déplacer avec les flèches du clavier, attaquer en mode rapide ou lourd
+avec un système de dés déterminant les dégâts, utiliser leur pouvoir spécial unique, ou se défendre pour réduire les dégâts de moitié.
+ **Note importante : la fonction esquive (dodge) n'est pas implémentée suite à des difficultés de compréhension du mécanisme.**
+
+## Interface et Affichage
+Le système comprend des barres de santé avec animations de dégâts, un panneau d'actions avec boutons interactifs,
+et un affichage du tour actuel. Les effets de cases sont automatiquement appliqués lors des déplacements (bonus de santé, pièges causant des dégâts, surprises aléatoires).
+
+## Gestion de Fin de Partie
+Le jeu se termine quand il ne reste qu'un seul joueur en vie, qui est déclaré vainqueur. Les joueurs éliminés sont retirés du plateau et leurs tours sont automatiquement sautés.
+
+**Important : Cette arène n'est pas responsive et doit être ouverte sur un PC pour une meilleure expérience de jeu.**
+* */
+
 document.addEventListener('DOMContentLoaded', function() { // Attendre que le DOM soit complètement chargé
 
     let playerOrder = [];
@@ -283,7 +316,7 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
                     } else {
                         alert("Type d'attaque invalide, attaque annulée.");
                     }
-                    }, 100);// why 100 so movment visually will be done after alert appear ( 5ra ta3 dev rani)
+                    }, 100);// why 100 so movment visually will be done after alert appear
             }
 
             return this.lastMoveValid;
@@ -609,7 +642,6 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
         console.error('No player selections found in localStorage.');
     }}
     // -------------------------------- FIN BRING CHARACTER LOCAL STORAGE ---------------------------------------------------//
-
 
 
 

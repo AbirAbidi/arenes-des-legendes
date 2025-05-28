@@ -1,3 +1,4 @@
+//    Pour plus de détails sur le fonctionnement du jeu, veuillez consulter le fichier jeu.js
 
 
 // Initialisation des constantes et des variables globales

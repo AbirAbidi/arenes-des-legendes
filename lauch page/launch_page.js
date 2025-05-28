@@ -1,4 +1,4 @@
-// Liste des personnages
+//    Pour plus de détails sur le fonctionnement du jeu, veuillez consulter le fichier jeu.js
 const personnages = [
   {
     nom: "Chevalier",
