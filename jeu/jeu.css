@@ -459,3 +459,26 @@ h3 {
   cursor: pointer;
 }
 
+#players-list {
+  position: absolute;
+  top: 15%;
+  right: 0;
+  padding: 0;
+  list-style: none;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  color: #333;
+  margin: 20px;
+}
+
+#players-list li {
+  margin-bottom: 4px;
+}
+
+
+
+
+
+
+
+

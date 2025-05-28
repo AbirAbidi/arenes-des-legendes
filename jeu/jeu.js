@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
             this.lastMoveValid = true ; // why this ? cuz in case i do a move and its beyond border so it wont skip the player turn and chnages only if he does make a move
             this.health = INITIAL_HEALTH ;
             this.isDefending = false ;
+            this.disponibilite = 0;
         }
 
         setPosition(position) {
@@ -36,6 +37,7 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
         }
 
         move(direction) {
+            this.hideAttackDice();
             let newPosition = this.position;
             this.lastMoveValid = true;
 
@@ -77,8 +79,20 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
             return this.lastMoveValid;
         }
 
-//TODO update attack so sorcier can attack even 2-3 cases far
+        // why this , so lets say i click on rapid attack so the dice appeared but i changed my mind and i want to mive insead
+        //without this it cant happen and the dice will always be there until u click it
+        // and so i will add before the start of evey function in every class
+        hideAttackDice() {
+            const diceDiv = document.getElementById("div-dice-bottom");
+            const attackDice = document.getElementById("attack-dice");
+            diceDiv.style.display = "none";
+            attackDice.textContent = "?";
+            attackDice.onclick = null;
+        }
+
+
         attack(attackType) {
+            this.hideAttackDice();
             const adjacentPositions = this.getAdjacentPositions();
             const targets = players.filter(p => p !== this && adjacentPositions.includes(p.position));
 
@@ -97,7 +111,8 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
             diceDiv.style.display = "flex";
             attackDice.textContent = "?";
 
-            attackDice.onclick = () => {
+            attackDice.onclick = (e) => {
+                e.stopPropagation();
                 const diceResult = Math.floor(Math.random() * 6) + 1;
                 attackDice.textContent = diceResult.toString(); // idk why this is not working but the rsult shows in alert so idgaf
                 let damage = 0;
@@ -129,109 +144,89 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
 
                 diceDiv.style.display = "none";
                 attackDice.onclick = null;
+                this.hideAttackDice();
             }
 
 
             return true;
         }
 
-        specialPower(player) {
-            // TODO : terminer les pouvoirs special des charcaters ( creer les 3 fcts )
-            // ti mahou ma yajim y3awid yista3mlha keni ba3d 3 fois
-            if (player.disponibilite > 0) {
-                alert(`Pouvoir spécial indisponible. Recharge : ${player.disponibilite} tour(s) restant(s).`);
-                return false;
-            }
-
-            switch (player.type) {
-                case 'chevalier':
-                    // Pouvoir : Coup de guerre (dégâts sur un ennemi proche)
-                    alert('Chevalier utilise Coup de guerre !');
-                    dealDamageToNearestEnemy(player, 30); //  30 dégâts
-                    break;
-
-                case 'ninja':
-                    // Pouvoir : Double attaque (deux attaques rapides)
-                    alert('Ninja utilise Double attaque !');
-                    attackTwice(player);
-                    break;
-
-                case 'sorcier':
-                    // Pouvoir : Tempête magique (zone d’effet autour du joueur)
-                    alert('Sorcier utilise Tempête magique !');
-                    magicStorm(player);
-                    break;
-
-            }
-
-            // Après utilisation, lancer la recharge (3 tours)
-            player.disponibilite = 3;
-            return true;
+        specialPower(players) {
+            alert(`${this.name} n'a pas de pouvoir spécial défini.`);
         }
 
-        // m gonna make it take the damage and reduce it bu half
+        // m gonna make it take the damage and reduce it by half
         defend() {
+            this.hideAttackDice();
             this.isDefending = true;
             alert(`${this.name} se prépare à défendre!`);
             return true;
         }
 
-        // TODO : finish the dodge too ( idk how tf m gonna to i dont get it)
+        // finish the dodge too ( idk how  m gonna to i dont get it)
         dodge() {
-            const dodgeSuccess = Math.random() > 0.5; // 50% chance
-            if (dodgeSuccess) {
-                alert(`${this.name} a réussi son esquive!`);
-                // Implement dodge effect (eg. move to random adjacent cell)
-                const adjacentPositions = this.getAdjacentPositions();
-                const validPositions = adjacentPositions.filter(pos =>
-                    pos >= 0 && pos < TOTAL_CASES &&
-                    !cases[pos].element.classList.contains('obstacle')
-                );
+            alert("FUNCTIONNALITY NOT WORKING YET !")
+        }
 
-                if (validPositions.length > 0) {
-                    const oldPosition = this.position;
-                    this.setPosition(validPositions[Math.floor(Math.random() * validPositions.length)]);
-                    updatePlayerPosition(this, oldPosition);
-                }
-            } else {
-                alert(`${this.name} a échoué son esquive!`);
+        // it takes oar defaut 1 et elle est hardcoded in sorcier a 2
+        getAdjacentPositions(distance = 1) {
+            const positions = [];
+
+            for (let d = 1; d <= distance; d++) {
+                positions.push(this.position - d * TAILLE); // Up
+                positions.push(this.position + d * TAILLE); // Down
+                positions.push(this.position - d);          // Left
+                positions.push(this.position + d);          // Right
             }
-            return true;
+
+            return positions.filter(pos => pos >= 0 && pos < TOTAL_CASES);
         }
 
-        getAdjacentPositions() {
-            return [
-                this.position - TAILLE, // Up
-                this.position + TAILLE, // Down
-                this.position - 1, // Left
-                this.position + 1  // Right
-            ].filter(pos => pos >= 0 && pos < TOTAL_CASES); // Filter valid positions
+
+        canUseSpecialPower(players) {
+            if (this.disponibilite > 0) {
+                alert(`Pouvoir spécial indisponible. Recharge : ${this.disponibilite} tour(s) restant(s).`);
+                return false;
+            }
+
+            const adjacentPositions = this.getAdjacentPositions();
+            const targets = players.filter(p => p !== this && p.health > 0 && adjacentPositions.includes(p.position));
+
+            if (targets.length === 0) {
+                alert("Aucun adversaire à proximité !");
+                return false;
+            }
+
+            return true; // tout est ok
         }
+
     }
     class Chevalier extends Player {
         constructor() {
             super('chevalier', '/assets/characters/Chevalier.png');
         }
-        // Override specialPower for Chevalier
-        specialPower() {
-            alert("Le Chevalier utilise Frappe Héroïque!");
-            // Inflict double damage to all adjacent enemies
-            const adjacentPositions = this.getAdjacentPositions();
-            const targets = players.filter(p => p !== this && adjacentPositions.includes(p.position));
+        specialPower(players) {
+            this.hideAttackDice();
+            if (!this.canUseSpecialPower(players)) return;
+            const directions = [-1, 1, -TAILLE, TAILLE];
+            const pos = this.getPosition();
 
-            if (targets.length === 0) {
-                alert("Aucun adversaire à proximité!");
-                return true;
+            for (let dir of directions) {
+                const targetPos = pos + dir;
+                const target = players.find(p => p !== this && p.health > 0 && p.getPosition() === targetPos);
+                if (target) {
+                    const damage = 40;
+                    target.health = Math.max(0, target.health - damage);
+                    alert(`${this.name} utilise Coup de guerre ! ${target.name} subit ${damage} dégâts !`);
+                    updateHealthBars();
+                    applyDamageEffect(players.indexOf(target));
+                    break;
+                }
             }
 
-            targets.forEach(target => {
-                const damage = Math.floor(Math.random() * 15) + 15; // Random damage between 15-29
-                target.health = Math.max(0, target.health - damage);
-                alert(`Frappe Héroïque inflige ${damage} points de dégâts à ${target.name}!`);
-            });
+            this.disponibilite = 3; // Recharge 3 tours
+            nextTurn();
 
-            updateHealthBars();
-            return true;
         }
     }
     class Ninja extends Player {
@@ -240,6 +235,7 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
         }
 
         move(direction) {
+            this.hideAttackDice();
             let newPosition = this.position;
             this.lastMoveValid = true;
 
@@ -293,104 +289,113 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
             return this.lastMoveValid;
         }
 
-        // Override specialPower for Ninja
-        specialPower() {
-            alert("Le Ninja utilise Attaque Furtive!");
-            // Attack with 100% chance of critical hit
-            const adjacentPositions = this.getAdjacentPositions();
-            const targets = players.filter(p => p !== this && adjacentPositions.includes(p.position));
+        specialPower(players) {
+            this.hideAttackDice();
+            if (!this.canUseSpecialPower(players)) return;
+            alert(`${this.name} utilise Double attaque !`);
 
-            if (targets.length === 0) {
-                // If no adjacent targets, can attack any player
-                const otherPlayers = players.filter(p => p !== this);
-                if (otherPlayers.length === 0) return true;
-
-                const target = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
-                const damage = Math.floor(Math.random() * 20) + 20; // Random damage between 20-39
-                target.health = Math.max(0, target.health - damage);
-                alert(`Attaque Furtive inflige ${damage} points de dégâts à ${target.name} à distance!`);
-            } else {
-                const target = targets[Math.floor(Math.random() * targets.length)];
-                const damage = Math.floor(Math.random() * 25) + 25; // Random damage between 25-49
-                target.health = Math.max(0, target.health - damage);
-                alert(`Attaque Furtive inflige ${damage} points de dégâts critiques à ${target.name}!`);
+            for (let i = 0; i < 2; i++) {
+                const target = players.find(p => p !== this && p.health > 0);
+                if (target) {
+                    const damage = Math.floor(Math.random() * 8) + 8; // 8-15
+                    target.health = Math.max(0, target.health - damage);
+                    alert(`${this.name} inflige ${damage} dégâts rapides à ${target.name}`);
+                    applyDamageEffect(players.indexOf(target));
+                }
             }
 
             updateHealthBars();
-            return true;
+            this.disponibilite = 3;
+            nextTurn();
         }
 
-        // Override dodge for Ninja (higher success rate)
-        dodge() {
-            const dodgeSuccess = Math.random() > 0.25; // 75% chance for Ninja
-            if (dodgeSuccess) {
-                alert(`${this.name} a réussi son esquive avec agilité!`);
-                // Ninja can move to any empty cell within 3 spaces
-                const oldPosition = this.position;
-
-                // Get valid positions within 3 spaces
-                const validPositions = [];
-                const currentRow = Math.floor(this.position / TAILLE);
-                const currentCol = this.position % TAILLE;
-
-                for (let r = Math.max(0, currentRow - 3); r <= Math.min(TAILLE - 1, currentRow + 3); r++) {
-                    for (let c = Math.max(0, currentCol - 3); c <= Math.min(TAILLE - 1, currentCol + 3); c++) {
-                        const pos = r * TAILLE + c;
-                        if (pos !== this.position && !cases[pos].element.classList.contains('obstacle')) {
-                            validPositions.push(pos);
-                        }
-                    }
-                }
-
-                if (validPositions.length > 0) {
-                    this.setPosition(validPositions[Math.floor(Math.random() * validPositions.length)]);
-                    updatePlayerPosition(this, oldPosition);
-                }
-            } else {
-                alert(`${this.name} a échoué son esquive!`);
-            }
-            return true;
-        }
     }
     class Sorcier extends Player {
         constructor() {
             super('sorcier', '/assets/characters/Sorcier.png');
         }
+        attack(attackType) {
+            this.hideAttackDice();
 
-        // Override specialPower for Sorcier
-        specialPower() {
-            alert("Le Sorcier lance Explosion Arcanique!");
-            // Damage all opponents on the board
-            const otherPlayers = players.filter(p => p !== this);
+            const adjacentPositions = this.getAdjacentPositions(2); //  on utilise 2 au lieu de 1
+            const targets = players.filter(p => p !== this && adjacentPositions.includes(p.position));
 
-            if (otherPlayers.length === 0) return true;
+            if (targets.length === 0) {
+                alert("Aucun adversaire à proximité !");
+                return false;
+            }
 
-            otherPlayers.forEach(target => {
-                // Damage depends on distance: closer = more damage
-                const distance = calculateDistance(this.position, target.position);
-                const baseDamage = 30;
-                const damage = Math.max(5, Math.floor(baseDamage / (distance + 1)));
+            const target = targets[0];
+            const targetIndex = players.findIndex(p => p === target);
+
+            // Affichage du dé
+            const diceDiv = document.getElementById("div-dice-bottom");
+            const attackDice = document.getElementById("attack-dice");
+            diceDiv.style.display = "flex";
+            attackDice.textContent = "?";
+
+            attackDice.onclick = (e) => {
+                e.stopPropagation();
+                const diceResult = Math.floor(Math.random() * 6) + 1;
+                attackDice.textContent = diceResult.toString();
+
+                let damage = 0;
+                let attackMessage = `${this.name} tente une attaque sur ${target.name}`;
+
+                if (diceResult <= 2) {
+                    damage = 0;
+                    attackMessage += ` mais échoue (résultat du dé: ${diceResult})`;
+                } else if ([3, 4, 5].includes(diceResult) && attackType === 'rapid') {
+                    damage = Math.floor(Math.random() * 8) + 8;
+                } else if (diceResult === 6 && attackType === 'rapid') {
+                    damage = Math.floor(Math.random() * 12) + 15;
+                } else if ([3, 4, 5].includes(diceResult) && attackType === 'heavy') {
+                    damage = Math.floor(Math.random() * 4) + 27;
+                } else if (diceResult === 6 && attackType === 'heavy') {
+                    damage = Math.floor(Math.random() * 10) + 31;
+                }
+
+                alert(`${attackMessage} pour ${damage} points de dégâts !`);
+
+                if (target.isDefending) {
+                    const reduced = Math.floor(damage / 2);
+                    alert(`${target.name} se défend ! Dégâts réduits de ${damage} à ${reduced}.`);
+                    damage = reduced;
+                    target.isDefending = false;
+                }
 
                 target.health = Math.max(0, target.health - damage);
-                alert(`Explosion Arcanique inflige ${damage} points de dégâts à ${target.name}!`);
-            });
+                applyDamageEffect(targetIndex);
+                updateHealthBars();
 
-            // Heal self for 10 points
-            this.health = Math.min(INITIAL_HEALTH, this.health + 10);
-            alert("Le Sorcier récupère 10 points de vie!");
+                this.hideAttackDice();
+            };
 
-            updateHealthBars();
             return true;
         }
-    }
-    // Helper function to calculate distance between positions
-    function calculateDistance(pos1, pos2) {
-        const row1 = Math.floor(pos1 / TAILLE);
-        const col1 = pos1 % TAILLE;
-        const row2 = Math.floor(pos2 / TAILLE);
-        const col2 = pos2 % TAILLE;
 
-        return Math.abs(row1 - row2) + Math.abs(col1 - col2);
+        specialPower(players) {
+            this.hideAttackDice();
+            if (!this.canUseSpecialPower(players)) return;
+            alert(`${this.name} utilise Tempête magique !`);
+            const directions = [-1, 1, -TAILLE, TAILLE];
+            const pos = this.getPosition();
+
+            for (let dir of directions) {
+                const targetPos = pos + dir;
+                const target = players.find(p => p !== this && p.health > 0 && p.getPosition() === targetPos);
+                if (target) {
+                    const damage = Math.floor(Math.random() * 10) + 15; // 15-24
+                    target.health = Math.max(0, target.health - damage);
+                    alert(`${target.name} est touché par la tempête magique et perd ${damage} HP.`);
+                    applyDamageEffect(players.indexOf(target));
+                }
+            }
+
+            updateHealthBars();
+            this.disponibilite = 3;
+            nextTurn();
+        }
     }
     // -------------------------------- FIN CLASSES ---------------------------------------------------//
 
@@ -466,7 +471,7 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
 
 
 
-    // -------------------------------- DEBUT DICE ---------------------------------------------------//
+    // -------------------------------- DEBUT DICE PLAYER ORDER ---------------------------------------------------//
     // ki u click depart ti5tafi
     document.getElementById("depart").addEventListener("click", function () {
         document.getElementById("the_big_dice_container").style.display = "flex";
@@ -548,7 +553,7 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
         enableActionButtons(true);
         updateTurnDisplay();
     });
-    // -------------------------------- FIN DICE ---------------------------------------------------//
+    // -------------------------------- FIN DICE PLAYER ORDER ---------------------------------------------------//
 
 
 
@@ -663,7 +668,7 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
                 break;
 
             case 'special':
-                actionCompleted = currentPlayer.specialPower();
+                actionCompleted = currentPlayer.specialPower(players);
                 break;
 
             case 'defend':
@@ -694,6 +699,7 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
         });
     }
     // -------------------------------- FIN ACTION BUTTONS ---------------------------------------------------//
+
 
 
 
@@ -767,13 +773,35 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
                     const winnerIndex = players.findIndex(p => p === alivePlayers[0]);
                     alert(`Partie terminée! Joueur ${winnerIndex + 1} (${alivePlayers[0].name}) a gagné!`);
                     enableActionButtons(false);
+                    localStorage.clear();
+                    setTimeout(() => {
+                        window.location.href = '../lauch page/launch_page.html';
+                    }, 2000);
                 }
             }
         });
     }
+    //this function to apply damage ( it affects the health bars )
+    function applyDamageEffect(playerIndex) {
+        const healthBar = document.getElementById(`health-bar-${playerIndex}`);
+        if (healthBar) {
+            // Add the class for animation
+            healthBar.classList.add('damage-effect');
+
+            // Remove the class after animation completes
+            setTimeout(() => {
+                healthBar.classList.remove('damage-effect');
+            }, 500);
+        }
+    }
     // -------------------------------- FIN HEALTH BARS ---------------------------------------------------//
 
 
+
+
+    //----------------------------------- DEBUT SHOW LIST OF TOUR DISPO FOR SPECIAL POWER --------------------------------------------------
+    renderPlayersList(players)
+    //----------------------------------- FIN SHOW LIST OF TOUR DISPO FOR SPECIAL POWER --------------------------------------------------
 
 
 
@@ -851,7 +879,7 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
                 const playerIdx = playerOrder[i];
                 const player = players[playerIdx];
                 if (player.health > 0) {
-                    const attackType = attackPriority[playerIdx] || 'normal';
+                    const attackType = attackPriority[playerIdx] || '';
                     attackTypeOrder.push({
                         playerIndex: playerIdx,
                         attackType: attackType
@@ -861,11 +889,13 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
 
             // Tri des priorités d'attaque
             attackTypeOrder.sort((a, b) => {
-                if (a.attackType === 'rapid' && b.attackType !== 'rapid') return -1;
-                if (a.attackType !== 'rapid' && b.attackType === 'rapid') return 1;
-                if (a.attackType === 'normal' && b.attackType === 'heavy') return -1;
-                if (a.attackType === 'heavy' && b.attackType === 'normal') return 1;
-                return 0;
+                const priority = {
+                    'rapid': 0,
+                    '': 1,
+                    'heavy': 2
+                };
+
+                return priority[a.attackType] - priority[b.attackType];
             });
 
             // Réinitialiser les priorités
@@ -884,14 +914,44 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
                 attempts++;
             }
 
+
             updateTurnDisplay();
             resetActionButtons();
+            if (players[currentPlayerIndex].disponibilite > 0) {
+                players[currentPlayerIndex].disponibilite--;
+            }
+            updateSpecialPowerCooldownDisplay();
+
         }
     }
+    function updateSpecialPowerCooldownDisplay() {
+        players.forEach((player, index) => {
+            const playerElem = document.getElementById(`player-${index}`);
+            if (playerElem) {
+                const cooldownElem = playerElem.querySelector('.special-power-cooldown');
+                if (cooldownElem) {
+                    if (player.disponibilite > 0) {
+                        cooldownElem.textContent = `Recharge : ${player.disponibilite} tour${player.disponibilite > 1 ? 's' : ''}`;
+                    } else {
+                        cooldownElem.textContent = `Pouvoir disponible`;
+                    }
+                }
+            }
+        });
+    }
+    function renderPlayersList() {
+        const playersList = document.getElementById('players-list');
+        playersList.innerHTML = ''; // vider la liste avant
 
+        players.forEach((player, index) => {
+            const li = document.createElement('li');
+            li.id = `player-${index}`;
+            li.innerHTML = `Joueur ${index + 1} - <span class="special-power-cooldown">Pouvoir disponible</span>`;
+            playersList.appendChild(li);
+        });
+    }
     // Modify handleActionButtonClick to store attack types
     // Function to handle key presses for movement
-    //TODO : update so when game is over we go back to launch page
     function handleMovement(event) {
         if (players.length === 0 || !actionButtonsEnabled || currentAction !== 'move') return;
 
@@ -946,19 +1006,25 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
         let keepTurn = false;
         // Check for bonuses
         if (caseInfo.element.classList.contains('bonus')) {
+            if(player.health === 100) {
+                alert("Tu peux rejouer !");
+                caseInfo.element.classList.remove('bonus');
+                keepTurn = true;
+            }else{
             const healthBonus = Math.floor(Math.random() * 15) + 5; // 5-19 health bonus
             player.health = Math.min(INITIAL_HEALTH, player.health + healthBonus);
             alert(`Bonus! ${player.name} gagne ${healthBonus} points de vie. Vous pouvez rejouer.`);
             caseInfo.element.classList.remove('bonus');
             updateHealthBars();
             keepTurn = true;
+            }
         }
 
         // Check for traps
         if (caseInfo.element.classList.contains('piege')) {
             const damage = Math.floor(Math.random() * 20) + 10; // 10-29 damage
             player.health = Math.max(0, player.health - damage);
-            alert(`Piège! ${player.name} perd ${damage} points de vie. Vous perdez votre prochain tour.`);
+            alert(`Piège! ${player.name} perd ${damage} points de vie.`);
             caseInfo.element.classList.remove('piege');
             updateHealthBars();
             // Skip to next player immediately
@@ -966,58 +1032,22 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
             keepTurn = true;
         }
 
-        // Check for surprises
+        // Check for surprises  which is the ?  it can be good or bad
         if (caseInfo.element.dataset.surprise) {
             const surpriseType = caseInfo.element.dataset.surprise;
 
             if (surpriseType === 'bonus') {
                 const healthBonus = Math.floor(Math.random() * 25) + 10; // 10-34 health bonus
+                if(player.health ===100){
+                    alert("Ton HeathBar est pleine , pas de surprise pour vous !");
+                }else{
                 player.health = Math.min(INITIAL_HEALTH, player.health + healthBonus);
-                alert(`Surprise positive! ${player.name} gagne ${healthBonus} points de vie et avance de 2 cases.`);
-
-                // Try to move player forward 2 more spaces in the same direction
-                const currentRow = Math.floor(position / TAILLE);
-                const currentCol = position % TAILLE;
-
-                // Determine last direction based on previous position
-                let lastDirection = '';
-                const oldPosition = player.position;
-
-                if (position === oldPosition - TAILLE) lastDirection = 'up';
-                else if (position === oldPosition + TAILLE) lastDirection = 'down';
-                else if (position === oldPosition - 1) lastDirection = 'left';
-                else if (position === oldPosition + 1) lastDirection = 'right';
-
-                // Try to move in same direction if possible
-                if (lastDirection) {
-                    const extraMove = player.move(lastDirection);
-                    if (extraMove) {
-                        updatePlayerPosition(player, position);
-                    }
+                alert(`Surprise positive! ${player.name} gagne ${healthBonus} points de vie.`);
                 }
             } else if (surpriseType === 'piege') {
                 const damage = Math.floor(Math.random() * 30) + 15; // 15-44 damage
                 player.health = Math.max(0, player.health - damage);
-                alert(`Surprise négative! ${player.name} perd ${damage} points de vie et recule de 2 cases.`);
-
-                // Move player backward 2 spaces (opposite of last direction)
-                const currentPosition = player.position;
-                let oppositeDirection = '';
-
-                const oldPosition = player.position;
-
-                if (position === oldPosition - TAILLE) oppositeDirection = 'down';
-                else if (position === oldPosition + TAILLE) oppositeDirection = 'up';
-                else if (position === oldPosition - 1) oppositeDirection = 'right';
-                else if (position === oldPosition + 1) oppositeDirection = 'left';
-
-                // Try to move in opposite direction if possible
-                if (oppositeDirection) {
-                    const extraMove = player.move(oppositeDirection);
-                    if (extraMove) {
-                        updatePlayerPosition(player, position);
-                    }
-                }
+                alert(`Surprise négative! ${player.name} perd ${damage} points de vie.`);
             }
 
             // Remove the surprise after it's triggered
@@ -1042,47 +1072,7 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
 
         return keepTurn;
     }
-    // Initialize the game
-    function initGame() {
-        console.log('Initializing game with', players.length, 'players');
-        if (players.length > 0) {
-            placePlayersInCorners();
-
-            // Show dice rolling interface first
-            document.getElementById('dice-container').style.display = 'flex';
-            updateTurnDisplay();
-        } else {
-            console.error('No players available to initialize game');
-        }
-
-        // Add event listeners
-        document.addEventListener('keydown', handleMovement);
-    }
-    // Start the game when everything is loaded
-    initGame();
-    // -------------------------------- FIN WHO'S turn is now ? ---------------------------------------------------//
-
-
-
-
-    // -------------------------------- DEBUT DAMAGE EFFECT FUNCTIONS  ---------------------------------------------------//
-    function applyDamageEffect(playerIndex) {
-        const healthBar = document.getElementById(`health-bar-${playerIndex}`);
-        if (healthBar) {
-            // Add the class for animation
-            healthBar.classList.add('damage-effect');
-
-            // Remove the class after animation completes
-            setTimeout(() => {
-                healthBar.classList.remove('damage-effect');
-            }, 500);
-        }
-    }
-
-    // -------------------------------- FIN DAMAGE EFFECT FUNCTIONS  ---------------------------------------------------//
-
-
-    // cuz for some fkn reason when they die they dont fkn dissapear
+    // when they die the  get erased
     function removePlayerFromBoard(player) {
         // Remove player image and number from the board
         const playerPosition = player.getPosition();
@@ -1109,6 +1099,30 @@ document.addEventListener('DOMContentLoaded', function() { // Attendre que le DO
         // Mark the player as removed from the board
         player.position = null;
     }
+    // Initialize the game
+    function initGame() {
+        console.log('Initializing game with', players.length, 'players');
+        if (players.length > 0) {
+            placePlayersInCorners();
+
+            // Show dice rolling interface first
+            document.getElementById('dice-container').style.display = 'flex';
+            updateTurnDisplay();
+        } else {
+            console.error('No players available to initialize game');
+        }
+
+        // Add event listeners
+        document.addEventListener('keydown', handleMovement);
+    }
+    // Start the game when everything is loaded
+    initGame();
+    // -------------------------------- FIN WHO'S turn is now ? ---------------------------------------------------//
+
+
+
+
+
 
 });
 
